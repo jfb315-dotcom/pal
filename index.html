@@ -44,56 +44,75 @@
         button { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 15px; }
         button:hover { filter: brightness(1.1); }
 
-        /* SCREENSHOT OPTIMIZED FRAME */
+        /* COMPACT STRUCTURAL LAYOUT TO FIGHT DEFAULT PRINT MARGINS */
         #letterWrapper { 
             display: none; 
             background: white; 
             width: 100%;
-            max-width: 480px; 
+            max-width: 500px; 
             box-sizing: border-box;
-            padding: 20px 18px; 
+            padding: 15px 20px; 
             margin: 10px auto; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
             border-radius: 8px;
         }
         
-        .letter-content { font-family: 'Times New Roman', Times, serif; font-size: 10pt; line-height: 1.38; text-align: justify; }
-        .header { text-align: center; border-bottom: 2px solid var(--primary); margin-bottom: 10px; padding-bottom: 6px; }
-        .header img { max-width: 160px; height: auto; }
+        .letter-content { font-family: 'Times New Roman', Times, serif; font-size: 10pt; line-height: 1.35; text-align: justify; }
         
-        .contact-info { font-size: 8.5pt; color: #444; margin-top: 2px; line-height: 1.3; }
-        .re-box { background: #f8f9fa; padding: 6px 10px; border-left: 4px solid var(--primary); margin: 8px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 3px; font-size: 9.5pt; }
-        .sig-block { margin-top: 12px; }
+        /* SIDE-BY-SIDE SIDEWALK HEADER FOR MASSIVE VERTICAL SPACE SAVINGS */
+        .header { 
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--primary); 
+            margin-bottom: 8px; 
+            padding-bottom: 6px; 
+        }
+        .header img { max-width: 140px; height: auto; display: block; }
+        .contact-info { font-size: 8pt; color: #444; text-align: right; line-height: 1.3; }
         
-        /* Cursive Dynamic Signature Styling */
+        .re-box { background: #f8f9fa; padding: 6px 10px; border-left: 4px solid var(--primary); margin: 6px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; font-size: 9pt; }
+        .sig-block { margin-top: 10px; }
+        
+        /* Compact Signature Config */
         .digital-signature {
             font-family: 'Caveat', cursive;
-            font-size: 26pt;
+            font-size: 24pt;
             color: #002855; 
-            height: 32px;
-            line-height: 32px;
-            padding-left: 6px;
-            transform: rotate(-1.5deg); 
+            height: 28px;
+            line-height: 28px;
+            padding-left: 4px;
+            transform: rotate(-1deg); 
             user-select: none;
         }
 
         p {
             margin-top: 0;
-            margin-bottom: 8px; 
+            margin-bottom: 6px; 
         }
 
         @media print {
-            @page { size: letter portrait; margin: 0.4in; }
-            html, body { background: white; }
+            @page { 
+                size: letter portrait; 
+                margin: 0.4in 0.5in; 
+            }
+            html, body { background: white; height: auto; }
             .no-print { display: none !important; }
-            #letterWrapper { border-radius: 0; box-shadow: none; max-width: 100%; margin: 0; padding: 0; }
+            #letterWrapper { 
+                border-radius: 0; 
+                box-shadow: none; 
+                max-width: 100% !important; 
+                width: 100% !important;
+                margin: 0 !important; 
+                padding: 0 !important; 
+            }
         }
     </style>
 </head>
 <body>
 
     <div class="slide-card no-print" id="inputSlide">
-        <div class="logo-preview"><img src="email-logo.png" alt="HMS Logo"></div>
+        <div class="logo-preview"><img src="email-logosmall.png" alt="HMS Logo"></div>
         <h2>Pre-Approval Portal</h2>
 
         <div class="input-group">
@@ -143,17 +162,20 @@
 
     <div id="letterWrapper">
         <div class="header">
-            <img src="email-logo.png" alt="Home Mortgage Solutions LLC">
+            <img src="email-logosmall.png" alt="Home Mortgage Solutions LLC">
             <div class="contact-info">
-                31 Mouse Creek Road NW &bull; Cleveland, TN 37312<br>
-                Office: (423) 555-0199 &bull; Email: <span id="headerEmail"></span>
+                <strong>Home Mortgage Solutions LLC</strong><br>
+                31 Mouse Creek Road NW<br>
+                Cleveland, TN 37312<br>
+                Office: (423) 555-0199<br>
+                Email: <span id="headerEmail"></span>
             </div>
         </div>
 
         <div class="letter-content">
-            <p style="text-align: right; margin-bottom: 4px;"><strong id="dateOut"></strong></p>
-            <p style="margin-bottom: 4px;">To Whom It May Concern,</p>
-            <p style="text-align: center; font-size: 10.5pt; margin-bottom: 6px;"><strong>RE: MORTGAGE PRE-APPROVAL FINANCING</strong></p>
+            <p style="text-align: right; margin-bottom: 2px;"><strong id="dateOut"></strong></p>
+            <p style="margin-bottom: 2px;">To Whom It May Concern,</p>
+            <p style="text-align: center; font-size: 10pt; margin-bottom: 4px;"><strong>RE: MORTGAGE PRE-APPROVAL FINANCING</strong></p>
 
             <div class="re-box">
                 <div><strong>Borrower:</strong> <span id="nameOut"></span></div>
@@ -166,7 +188,7 @@
 
             <p>This letter serves as formal confirmation that the borrower(s) listed above have been pre-approved for residential financing through <strong>Home Mortgage Solutions LLC</strong>.</p>
 
-            <p id="realtorLine" style="display:none; font-style: italic; background-color: #fcfcfc; padding: 5px; border: 1px dashed #cbd5e0; margin-bottom: 8px; font-size: 9.5pt;"></p>
+            <p id="realtorLine" style="display:none; font-style: italic; background-color: #fcfcfc; padding: 4px; border: 1px dashed #cbd5e0; margin-bottom: 6px; font-size: 9pt;"></p>
 
             <p>Please note that final loan approval remains strictly subject to the receipt and underwriting satisfaction of a fully executed purchase contract and all applicable addendums, an acceptable property appraisal report, a clear title report, satisfactory property insurance policies, and the timely submission of all remaining background documentation requested for final underwriting sign-off.</p>
 
@@ -181,7 +203,7 @@
             <div class="sig-block">
                 Sincerely,<br>
                 <div class="digital-signature" id="automatedSignature"></div>
-                <div style="width: 180px; border-bottom: 1px solid #000; margin-bottom: 3px;"></div>
+                <div style="width: 160px; border-bottom: 1px solid #000; margin-bottom: 2px;"></div>
                 <strong id="sigName"></strong><br>
                 Mortgage Broker / Owner<br>
                 Home Mortgage Solutions LLC<br>
@@ -189,8 +211,8 @@
             </div>
         </div>
 
-        <button class="no-print" style="margin-top: 20px; background: #28a745; padding: 10px; font-size: 1rem;" onclick="window.print()">Print / Save PDF</button>
-        <button class="no-print" style="margin-top: 8px; background: #6c757d; padding: 10px; font-size: 1rem;" onclick="location.reload()">Reset Portal</button>
+        <button class="no-print" style="margin-top: 15px; background: #28a745; padding: 10px; font-size: 1rem;" onclick="window.print()">Print / Save PDF</button>
+        <button class="no-print" style="margin-top: 6px; background: #6c757d; padding: 10px; font-size: 1rem;" onclick="location.reload()">Reset Portal</button>
     </div>
 
     <script>
