@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HMS Pre-Approval Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #005a9c;
+            --bg: #f0f2f5;
+            --text: #1a202c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .slide-card {
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 550px;
+        }
+
+        .logo-preview { text-align: center; margin-bottom: 20px; }
+        .logo-preview img { max-width: 200px; }
+        h2 { text-align: center; margin-bottom: 25px; color: var(--primary); }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; color: #4a5568; }
+        input, select { width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
+        input:focus { border-color: var(--primary); outline: none; }
+        .dual-input { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        button { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        button:hover { filter: brightness(1.1); }
+
+        /* Letter Wrapper Layout styling */
+        #letterWrapper { 
+            display: none; 
+            background: white; 
+            width: 8.5in; 
+            max-width: 8.5in;
+            min-height: 11in;
+            box-sizing: border-box;
+            padding: 0.6in 0.85in; 
+            margin: 20px; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.1); 
+        }
+        .letter-content { font-family: 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.45; text-align: justify; }
+        .header { text-align: center; border-bottom: 2px solid var(--primary); margin-bottom: 15px; padding-bottom: 6px; }
+        .header img { max-width: 260px; }
+        .contact-info { font-size: 9.5pt; color: #555; margin-top: 4px; }
+        .re-box { background: #f8f9fa; padding: 10px 12px; border-left: 4px solid var(--primary); margin: 12px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+        .sig-block { margin-top: 20px; page-break-inside: avoid; }
+        
+        /* Cursive Dynamic Signature Styling */
+        .digital-signature {
+            font-family: 'Caveat', cursive;
+            font-size: 30pt;
+            color: #002855; 
+            height: 40px;
+            line-height: 40px;
+            padding-left: 10px;
+            transform: rotate(-1.5deg); 
+            user-select: none;
+        }
+
+        p {
+            margin-top: 0;
+            margin-bottom: 12px; 
+        }
+
+        /* HARD ONE-PAGE PRINT OVERRIDES */
+        @media print {
+            @page {
+                size: letter vertical;
+                margin: 0px; /* Tells browser layout to maximize raw print canvas */
+            }
+            html, body {
+                background: white;
+                height: 100%;
+                overflow: hidden;
+            }
+            .no-print { display: none !important; }
+            #letterWrapper { 
+                display: block !important; 
+                margin: 0 !important; 
+                padding: 0.5in 0.75in !important; /* Forces structural margins directly inside the page frame */
+                box-shadow: none !important;
+                width: 8.5in !important;
+                max-width: 8.5in !important;
+                height: 11in !important;
+                max-height: 11in !important;
+                overflow: hidden !important; 
+                box-sizing: border-box !important;
+                page-break-after: avoid;
+            }
+            .letter-content {
+                font-size: 11pt; 
+                line-height: 1.42;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide-card no-print" id="inputSlide">
+        <div class="logo-preview"><img src="image.png" alt="HMS Logo"></div>
+        <h2>Pre-Approval Portal</h2>
+
+        <div class="input-group">
+            <label>Borrower Name</label>
+            <input type="text" id="custName" placeholder="e.g. John Doe">
+        </div>
+
+        <div class="dual-input">
+            <div class="input-group">
+                <label>Loan Program</label>
+                <select id="program" onchange="checkProgramDefaults()">
+                    <option value="Conventional">Conventional</option>
+                    <option value="FHA">FHA</option>
+                    <option value="VA">VA</option>
+                    <option value="USDA">USDA</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Signatory Officer</label>
+                <select id="signatory">
+                    <option value="john">John Bischof</option>
+                    <option value="darrell">Darrell Whitaker</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Purchase Price ($)</label>
+            <input type="number" id="price" placeholder="225000" oninput="calcDownAmount()">
+        </div>
+
+        <div class="input-group">
+            <label>Down Payment</label>
+            <div class="dual-input">
+                <div><small>Amount ($)</small><input type="number" id="downAmt" oninput="calcDownPercent()"></div>
+                <div><small>Percent (%)</small><input type="number" id="downPct" step="0.1" oninput="calcDownAmount()"></div>
+            </div>
+        </div>
+
+        <div class="dual-input">
+            <div class="input-group"><label>Property Address (Optional)</label><input type="text" id="propAddr" placeholder="123 Main St"></div>
+            <div class="input-group"><label>Listing Agent (Optional)</label><input type="text" id="agentName" placeholder="Agent Name"></div>
+        </div>
+
+        <button onclick="generateLetter()">Generate Automated Letter</button>
+    </div>
+
+    <div id="letterWrapper">
+        <div class="header">
+            <img src="image.png" alt="Home Mortgage Solutions LLC">
+            <div class="contact-info">
+                31 Mouse Creek Road NW &bull; Cleveland, TN 37312<br>
+                Office: (423) 555-0199 &bull; Email: <span id="headerEmail"></span>
+            </div>
+        </div>
+
+        <div class="letter-content">
+            <p style="text-align: right;"><strong id="dateOut"></strong></p>
+            <p>To Whom It May Concern,</p>
+            <p style="text-align: center; font-size: 12pt; margin-bottom: 8px;"><strong>RE: MORTGAGE PRE-APPROVAL FINANCING</strong></p>
+
+            <div class="re-box">
+                <div><strong>Borrower:</strong> <span id="nameOut"></span></div>
+                <div><strong>Loan Program:</strong> <span id="progOut"></span></div>
+                <div><strong>Purchase Price:</strong> <span id="priceOut"></span></div>
+                <div><strong>Loan Amount:</strong> <span id="loanOut"></span></div>
+                <div><strong>Down Payment:</strong> <span id="downOut"></span></div>
+                <div><strong>LTV Percentage:</strong> <span id="ltvOut"></span></div>
+            </div>
+
+            <p>This letter serves as formal confirmation that the borrower(s) listed above have been pre-approved for residential financing through <strong>Home Mortgage Solutions LLC</strong>.</p>
+
+            <p id="realtorLine" style="display:none; font-style: italic; background-color: #fcfcfc; padding: 6px; border: 1px dashed #cbd5e0; margin-bottom: 10px;"></p>
+
+            <p>Please note that final loan approval remains strictly subject to the receipt and underwriting satisfaction of a fully executed purchase contract and all applicable addendums, an acceptable property appraisal report, a clear title report, satisfactory property insurance policies, and the timely submission of all remaining background documentation requested for final underwriting sign-off.</p>
+
+            <p>This Pre‐Approval does not constitute a final loan approval, a commitment to lend or a guarantee of interest rate, and should be considered a preliminary assessment of the applicant's ability to obtain a mortgage loan based on the current underwriting guidelines in place for the loan program requested.</p>
+            
+            <p>Once a purchase contract has been fully executed we will submit the collected documentation necessary to obtain loan approval from underwriting.</p>
+            
+            <p>I am privileged to assist you with your home financing needs. I realize there are many lenders to choose from and I appreciate you have selected my company, and you will receive unparallel customer service throughout your process and after. If you should have any questions, please feel free to contact me at <span id="contactCallout"></span>. I look forward to working with you.</p>
+
+            <p>This certificate remains an active validation of financial capability for a period of 90 days, officially expiring on <strong id="expireOut"></strong>.</p>
+
+            <div class="sig-block">
+                Sincerely,<br>
+                <div class="digital-signature" id="automatedSignature"></div>
+                <div style="width: 220px; border-bottom: 1px solid #000; margin-bottom: 4px;"></div>
+                <strong id="sigName"></strong><br>
+                Mortgage Broker / Owner<br>
+                Home Mortgage Solutions LLC<br>
+                <span id="sigEmail"></span>
+            </div>
+        </div>
+
+        <button class="no-print" style="margin-top: 25px; background: #28a745;" onclick="window.print()">Print / Save PDF</button>
+        <button class="no-print" style="margin-top: 10px; background: #6c757d;" onclick="location.reload()">Reset Portal</button>
+    </div>
+
+    <script>
+        function checkProgramDefaults() {
+            const prog = document.getElementById('program').value;
+            if (prog === "VA" || prog === "USDA") { document.getElementById('downPct').value = 0; calcDownAmount(); }
+            else if (prog === "FHA") { document.getElementById('downPct').value = 3.5; calcDownAmount(); }
+        }
+
+        function calcDownAmount() {
+            const price = document.getElementById('price').value;
+            const percent = document.getElementById('downPct').value;
+            if (price && percent !== "") {
+                document.getElementById('downAmt').value = (price * (percent / 100)).toFixed(0);
+            }
+        }
+
+        function calcDownPercent() {
+            const price = document.getElementById('price').value;
+            const amount = document.getElementById('downAmt').value;
+            if (price && amount) {
+                document.getElementById('downPct').value = ((amount / price) * 100).toFixed(2);
+            }
+        }
+
+        function generateLetter() {
+            const name = document.getElementById('custName').value;
+            const price = parseFloat(document.getElementById('price').value || 0);
+            const downAmt = parseFloat(document.getElementById('downAmt').value || 0);
+            const downPct = document.getElementById('downPct').value || "0";
+            const prog = document.getElementById('program').value;
+            const sig = document.getElementById('signatory').value;
+            const prop = document.getElementById('propAddr').value;
+            const agent = document.getElementById('agentName').value;
+
+            if(!name || !price) { alert("Borrower Name and Purchase Price are mandatory."); return; }
+
+            const loanAmt = price - downAmt;
+            const ltv = ((loanAmt / price) * 100).toFixed(2);
+            const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+
+            const today = new Date();
+            const expiry = new Date();
+            expiry.setDate(today.getDate() + 90);
+
+            document.getElementById('dateOut').innerText = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('expireOut').innerText = expiry.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            document.getElementById('nameOut').innerText = name;
+            document.getElementById('progOut').innerText = prog;
+            document.getElementById('priceOut').innerText = fmt.format(price);
+            document.getElementById('loanOut').innerText = fmt.format(loanAmt);
+            document.getElementById('downOut').innerText = fmt.format(downAmt) + " (" + downPct + "%)";
+            document.getElementById('ltvOut').innerText = ltv + "%";
+
+            let email = "";
+            let fullName = "";
+            let phoneText = "";
+
+            if (sig === "john") {
+                email = "john@hmsloan.com";
+                fullName = "John Bischof";
+                phoneText = "John Bischof at (423) 505-9811";
+            } else {
+                email = "darrell@hmsloan.com";
+                fullName = "Darrell Whitaker";
+                phoneText = "Darrell Whitaker at (423) 505-1376";
+            }
+
+            document.getElementById('headerEmail').innerText = email;
+            document.getElementById('sigName').innerText = fullName;
+            document.getElementById('sigEmail').innerText = email;
+            document.getElementById('contactCallout').innerText = phoneText;
+            document.getElementById('automatedSignature').innerText = fullName; 
+
+            if (prop || agent) {
+                let text = "Special Notice: This pre-approval packet has been intentionally tailored";
+                if(prop) text += ` for the property located at ${prop}`;
+                if(agent) text += ` in coordination with listing representative ${agent}`;
+                text += ".";
+                document.getElementById('realtorLine').innerText = text;
+                document.getElementById('realtorLine').style.display = "block";
+            } else {
+                document.getElementById('realtorLine').style.display = "none";
+            }
+
+            document.getElementById('inputSlide').style.display = 'none';
+            document.getElementById('letterWrapper').style.display = 'block';
+            window.scrollTo(0,0);
+        }
+    </script>
+</body>
+</html>
