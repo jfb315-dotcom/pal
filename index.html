@@ -42,7 +42,15 @@
         .dual-input { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         button { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 15px; }
         button:hover { filter: brightness(1.1); }
+        
+        .action-btn-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 25px;
+        }
 
+        /* Original Letter Wrapper Layout styling */
         #letterWrapper { 
             display: none; 
             background: white; 
@@ -56,11 +64,12 @@
         }
         .letter-content { font-family: 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.45; text-align: justify; }
         .header { text-align: center; border-bottom: 2px solid var(--primary); margin-bottom: 15px; padding-bottom: 6px; }
-        .header img { max-width: 260px; }
+        .header img { max-width: 260px; height: auto; } /* Restored full size bounds */
         .contact-info { font-size: 9.5pt; color: #555; margin-top: 4px; }
         .re-box { background: #f8f9fa; padding: 10px 12px; border-left: 4px solid var(--primary); margin: 12px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
         .sig-block { margin-top: 20px; page-break-inside: avoid; }
         
+        /* Cursive Dynamic Signature Styling */
         .digital-signature {
             font-family: 'Caveat', cursive;
             font-size: 30pt;
@@ -76,15 +85,26 @@
             font-size: 8pt;
             color: #a0aec0;
             text-align: center;
-            margin-top: 15px;
+            margin-top: 25px;
             font-family: monospace;
         }
 
-        p { margin-top: 0; margin-bottom: 12px; }
+        p {
+            margin-top: 0;
+            margin-bottom: 12px; 
+        }
 
+        /* HARD ONE-PAGE PRINT OVERRIDES */
         @media print {
-            @page { size: letter portrait; margin: 0px; }
-            html, body { background: white; height: 100%; overflow: hidden; }
+            @page {
+                size: letter portrait;
+                margin: 0px; 
+            }
+            html, body {
+                background: white;
+                height: 100%;
+                overflow: hidden;
+            }
             .no-print { display: none !important; }
             #letterWrapper { 
                 display: block !important; 
@@ -98,6 +118,10 @@
                 overflow: hidden !important; 
                 box-sizing: border-box !important;
                 page-break-after: avoid;
+            }
+            .letter-content {
+                font-size: 11pt; 
+                line-height: 1.42;
             }
         }
     </style>
@@ -134,14 +158,14 @@
 
         <div class="input-group">
             <label>Purchase Price ($)</label>
-            <input type="number" id="price" placeholder="225000" oninput="calcDownAmount()">
+            <input type="text" id="price" placeholder="225,000" oninput="formatCurrencyInput(this); calcDownAmount();">
         </div>
 
         <div class="input-group">
             <label>Down Payment</label>
             <div class="dual-input">
-                <div><small>Amount ($)</small><input type="number" id="downAmt" oninput="calcDownPercent()"></div>
-                <div><small>Percent (%)</small><input type="number" id="downPct" step="0.1" oninput="calcDownAmount()"></div>
+                <div><small>Amount ($)</small><input type="text" id="downAmt" placeholder="0" oninput="formatCurrencyInput(this); calcDownPercent();"></div>
+                <div><small>Percent (%)</small><input type="number" id="downPct" step="0.1" placeholder="0" oninput="calcDownAmount();"></div>
             </div>
         </div>
 
@@ -203,12 +227,14 @@
             <div class="cert-id" id="validationIdOut"></div>
         </div>
 
-        <button class="no-print" style="margin-top: 25px; background: #28a745;" onclick="window.print()">Print / Save PDF</button>
-        <button class="no-print" style="margin-top: 10px; background: #6c757d;" onclick="resetPortal()">Reset Portal</button>
+        <div class="action-btn-container no-print">
+            <button style="background: #28a745; margin: 0;" onclick="window.print()">Print / Save PDF</button>
+            <button style="background: #007bff; margin: 0;" onclick="copyToClipboard()">Copy Summary Data</button>
+        </div>
+        <button class="no-print" style="margin-top: 10px; background: #6c757d; width: 100%;" onclick="resetPortal()">Reset Portal</button>
     </div>
 
     <script>
-        // Load default officer from previous usage sessions
         window.onload = function() {
             const savedOfficer = localStorage.getItem('hmsDefaultSignatory');
             if (savedOfficer) {
@@ -221,37 +247,62 @@
             localStorage.setItem('hmsDefaultSignatory', currentOfficer);
         }
 
+        // Live comma formatting logic
+        function formatCurrencyInput(input) {
+            let value = input.value.replace(/,/g, '');
+            if (!isNaN(value) && value !== '') {
+                input.value = parseFloat(value).toLocaleString('en-US');
+            }
+        }
+
+        function getRawValue(id) {
+            return parseFloat(document.getElementById(id).value.replace(/,/g, '')) || 0;
+        }
+
+        function setFormattedValue(id, num) {
+            if (num > 0) {
+                document.getElementById(id).value = Math.round(num).toLocaleString('en-US');
+            } else {
+                document.getElementById(id).value = '';
+            }
+        }
+
         function checkProgramDefaults() {
             const prog = document.getElementById('program').value;
-            if (prog === "VA" || prog === "USDA") { document.getElementById('downPct').value = 0; calcDownAmount(); }
-            else if (prog === "FHA") { document.getElementById('downPct').value = 3.5; calcDownAmount(); }
+            if (prog === "VA" || prog === "USDA") { 
+                document.getElementById('downPct').value = 0; 
+                calcDownAmount(); 
+            } else if (prog === "FHA") { 
+                document.getElementById('downPct').value = 3.5; 
+                calcDownAmount(); 
+            }
         }
 
         function calcDownAmount() {
-            const price = document.getElementById('price').value;
-            const percent = document.getElementById('downPct').value;
-            if (price && percent !== "") {
-                document.getElementById('downAmt').value = (price * (percent / 100)).toFixed(0);
+            const price = getRawValue('price');
+            const percent = parseFloat(document.getElementById('downPct').value) || 0;
+            if (price) {
+                const amount = price * (percent / 100);
+                setFormattedValue('downAmt', amount);
             }
         }
 
         function calcDownPercent() {
-            const price = document.getElementById('price').value;
-            const amount = document.getElementById('downAmt').value;
+            const price = getRawValue('price');
+            const amount = getRawValue('downAmt');
             if (price && amount) {
                 document.getElementById('downPct').value = ((amount / price) * 100).toFixed(2);
             }
         }
 
         function resetPortal() {
-            // Reload page but keep sticky officer values
             location.reload();
         }
 
         function generateLetter() {
             const name = document.getElementById('custName').value;
-            const price = parseFloat(document.getElementById('price').value || 0);
-            const downAmt = parseFloat(document.getElementById('downAmt').value || 0);
+            const price = getRawValue('price');
+            const downAmt = getRawValue('downAmt');
             const downPct = document.getElementById('downPct').value || "0";
             const prog = document.getElementById('program').value;
             const sig = document.getElementById('signatory').value;
@@ -268,7 +319,6 @@
             const expiry = new Date();
             expiry.setDate(today.getDate() + 90);
 
-            // Generate Verification Security Token
             const randomHex = Math.floor(Math.random()*16777215).toString(16).toUpperCase().substring(0, 4);
             const stampId = `VALIDATION ID: HMS-${today.getFullYear()}${(today.getMonth()+1).toString().padStart(2,'0')}${today.getDate().toString().padStart(2,'0')}-${randomHex}`;
             document.getElementById('validationIdOut').innerText = stampId;
@@ -317,6 +367,33 @@
             document.getElementById('inputSlide').style.display = 'none';
             document.getElementById('letterWrapper').style.display = 'block';
             window.scrollTo(0,0);
+        }
+
+        // Direct Clipboard text extractor function
+        function copyToClipboard() {
+            const borrower = document.getElementById('nameOut').innerText;
+            const program = document.getElementById('progOut').innerText;
+            const price = document.getElementById('priceOut').innerText;
+            const loanAmt = document.getElementById('loanOut').innerText;
+            const downPmt = document.getElementById('downOut').innerText;
+            const expiration = document.getElementById('expireOut').innerText;
+            const validId = document.getElementById('validationIdOut').innerText;
+
+            const clipboardText = `HMS Pre-Approval Summary Data:\n` +
+                                 `-----------------------------------\n` +
+                                 `Borrower: ${borrower}\n` +
+                                 `Loan Program: ${program}\n` +
+                                 `Purchase Price: ${price}\n` +
+                                 `Loan Amount: ${loanAmt}\n` +
+                                 `Down Payment: ${downPmt}\n` +
+                                 `Valid Until: ${expiration}\n` +
+                                 `${validId}`;
+
+            navigator.clipboard.writeText(clipboardText).then(() => {
+                alert("Pre-approval profile quick summary copied to clipboard!");
+            }).catch(err => {
+                alert("Unable to copy summary automatically: ", err);
+            });
         }
     </script>
 </body>
