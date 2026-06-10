@@ -43,7 +43,6 @@
         button { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 15px; }
         button:hover { filter: brightness(1.1); }
 
-        /* Original Letter Wrapper Layout styling */
         #letterWrapper { 
             display: none; 
             background: white; 
@@ -62,7 +61,6 @@
         .re-box { background: #f8f9fa; padding: 10px 12px; border-left: 4px solid var(--primary); margin: 12px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
         .sig-block { margin-top: 20px; page-break-inside: avoid; }
         
-        /* Cursive Dynamic Signature Styling */
         .digital-signature {
             font-family: 'Caveat', cursive;
             font-size: 30pt;
@@ -74,22 +72,19 @@
             user-select: none;
         }
 
-        p {
-            margin-top: 0;
-            margin-bottom: 12px; 
+        .cert-id {
+            font-size: 8pt;
+            color: #a0aec0;
+            text-align: center;
+            margin-top: 15px;
+            font-family: monospace;
         }
 
-        /* HARD ONE-PAGE PRINT OVERRIDES */
+        p { margin-top: 0; margin-bottom: 12px; }
+
         @media print {
-            @page {
-                size: letter portrait;
-                margin: 0px; 
-            }
-            html, body {
-                background: white;
-                height: 100%;
-                overflow: hidden;
-            }
+            @page { size: letter portrait; margin: 0px; }
+            html, body { background: white; height: 100%; overflow: hidden; }
             .no-print { display: none !important; }
             #letterWrapper { 
                 display: block !important; 
@@ -103,10 +98,6 @@
                 overflow: hidden !important; 
                 box-sizing: border-box !important;
                 page-break-after: avoid;
-            }
-            .letter-content {
-                font-size: 11pt; 
-                line-height: 1.42;
             }
         }
     </style>
@@ -134,7 +125,7 @@
             </div>
             <div class="input-group">
                 <label>Signatory Officer</label>
-                <select id="signatory">
+                <select id="signatory" onchange="saveSignatoryDefault()">
                     <option value="john">John Bischof</option>
                     <option value="darrell">Darrell Whitaker</option>
                 </select>
@@ -208,13 +199,28 @@
                 Home Mortgage Solutions LLC<br>
                 <span id="sigEmail"></span>
             </div>
+
+            <div class="cert-id" id="validationIdOut"></div>
         </div>
 
         <button class="no-print" style="margin-top: 25px; background: #28a745;" onclick="window.print()">Print / Save PDF</button>
-        <button class="no-print" style="margin-top: 10px; background: #6c757d;" onclick="location.reload()">Reset Portal</button>
+        <button class="no-print" style="margin-top: 10px; background: #6c757d;" onclick="resetPortal()">Reset Portal</button>
     </div>
 
     <script>
+        // Load default officer from previous usage sessions
+        window.onload = function() {
+            const savedOfficer = localStorage.getItem('hmsDefaultSignatory');
+            if (savedOfficer) {
+                document.getElementById('signatory').value = savedOfficer;
+            }
+        };
+
+        function saveSignatoryDefault() {
+            const currentOfficer = document.getElementById('signatory').value;
+            localStorage.setItem('hmsDefaultSignatory', currentOfficer);
+        }
+
         function checkProgramDefaults() {
             const prog = document.getElementById('program').value;
             if (prog === "VA" || prog === "USDA") { document.getElementById('downPct').value = 0; calcDownAmount(); }
@@ -237,6 +243,11 @@
             }
         }
 
+        function resetPortal() {
+            // Reload page but keep sticky officer values
+            location.reload();
+        }
+
         function generateLetter() {
             const name = document.getElementById('custName').value;
             const price = parseFloat(document.getElementById('price').value || 0);
@@ -256,6 +267,11 @@
             const today = new Date();
             const expiry = new Date();
             expiry.setDate(today.getDate() + 90);
+
+            // Generate Verification Security Token
+            const randomHex = Math.floor(Math.random()*16777215).toString(16).toUpperCase().substring(0, 4);
+            const stampId = `VALIDATION ID: HMS-${today.getFullYear()}${(today.getMonth()+1).toString().padStart(2,'0')}${today.getDate().toString().padStart(2,'0')}-${randomHex}`;
+            document.getElementById('validationIdOut').innerText = stampId;
 
             document.getElementById('dateOut').innerText = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
             document.getElementById('expireOut').innerText = expiry.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
