@@ -69,33 +69,36 @@
         
         .re-box { background: #f8f9fa; padding: 8px 12px; border-left: 4px solid var(--primary); margin: 10px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
         
-        /* Relative anchor position container for signature space */
+        /* Anchor for fixed signature stacking */
         .sig-block { 
             margin-top: 15px; 
             position: relative;
             page-break-inside: avoid; 
         }
         
-        /* Box frame for containing signature graphic layout */
+        /* signature graphic bounding box */
         .sig-space {
             position: relative;
             height: 45px;
             margin-bottom: 4px;
         }
 
-        /* Absolute positioning overlay layer to stack signature without altering text flow */
+        /* DYNAMIC TRANSPARENCY RULE FOR NON-TRANSPARENT SIGNATURE FILES */
         .signature-overlay {
             position: absolute;
             bottom: -5px;
             left: 10px;
-            height: 60px; /* Fits image boundary securely */
+            height: 60px; 
             width: auto;
             max-width: 200px;
             z-index: 10;
-            pointer-events: none; /* Prevents interference with selecting text */
+            pointer-events: none; 
+            
+            /* DYNAMIC TRANSPARENCY: */
+            /* Multiply blend mode knocks out the white background while keeping the dark signature lines. */
+            mix-blend-mode: multiply; 
         }
 
-        /* Text fallback font styling for cursive display backup */
         .digital-signature-text {
             font-family: 'Caveat', cursive;
             font-size: 32pt;
@@ -146,6 +149,13 @@
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
+            
+            /* Ensures blend modes are retained during PDF generation/printing */
+            #sigContainer img.signature-overlay {
+                -webkit-print-color-adjust: exact !important;
+                mix-blend-mode: multiply !important;
+            }
+            
             .header img { width: 110px !important; max-width: 110px !important; }
             .letter-content {
                 font-size: 10.5pt; 
@@ -245,7 +255,7 @@
             <div class="sig-block">
                 Sincerely,<br>
                 <div class="sig-space" id="sigContainer">
-                    </div>
+                </div>
                 <div style="width: 200px; border-bottom: 1px solid #000; margin-bottom: 4px;"></div>
                 <strong id="sigName"></strong><br>
                 Mortgage Broker / Owner<br>
@@ -370,13 +380,13 @@
                 email = "john@hmsloan.com";
                 fullName = "John Bischof";
                 phoneText = "John Bischof at (423) 505-9811";
-                // Loads the real signature file on top dynamically
+                // Renders the real signature file on top
                 sigContainer.innerHTML = `<img src="john-sig.png" class="signature-overlay" alt="John Bischof Signature">`;
             } else {
                 email = "darrell@hmsloan.com";
                 fullName = "Darrell Whitaker";
                 phoneText = "Darrell Whitaker at (423) 505-1376";
-                // Falls back to text styling for backup or separate officer profile
+                // Falls back to text signature
                 sigContainer.innerHTML = `<div class="digital-signature-text">${fullName}</div>`;
             }
 
