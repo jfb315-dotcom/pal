@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>HMS Pre-Approval Portal</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght=500&family=Segoe+UI:wght=400;600&display=swap" rel="stylesheet">
@@ -23,9 +23,9 @@
             margin: 0;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Changed to flex-start so mobile scrolling works better */
+            align-items: flex-start;
             min-height: 100vh;
-            padding: 10px;
+            padding: 15px;
         }
 
         .slide-card {
@@ -35,7 +35,7 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             width: 100%;
             max-width: 550px;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         .logo-preview { text-align: center; margin-bottom: 20px; }
@@ -50,35 +50,35 @@
         button { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 15px; }
         button:hover { filter: brightness(1.1); }
         
-        .action-btn-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 20px;
-            width: 100%;
-            max-width: 816px; /* Matches letter width */
-        }
-
-        /* This container holds the letter and allows it to scroll horizontally on small phone screens 
-           so the physical dimensions of the letter remain perfect for PDF generation.
-        */
         #documentView {
             display: none;
             width: 100%;
-            overflow-x: auto;
-            padding-bottom: 40px;
+            max-width: 600px; /* Keeps it readable on phones */
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 60px;
         }
 
-        /* STRICT 8.5 x 11 Layout - Locked for PDF Engine */
+        /* MOBILE-FRIENDLY LETTER WRAPPER (Adapts to phone screen) */
         #letterWrapper { 
             background: white; 
-            width: 816px; /* Exact pixel width of 8.5 inches */
-            height: 1056px; /* Exact pixel height of 11 inches */
+            width: 100%;
             box-sizing: border-box;
-            padding: 50px 75px; 
+            padding: 25px; 
             margin: 0 auto; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.15); 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08); 
+            border-radius: 8px;
             position: relative;
+        }
+
+        /* HIDDEN PRINT-MODE CLASS: Temporarily forces 8.5x11 strictly for PDF engine */
+        .pdf-export-mode {
+            width: 816px !important;
+            max-width: 816px !important;
+            height: 1056px !important;
+            padding: 50px 75px !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
         }
 
         .letter-content { font-family: 'Times New Roman', Times, serif; font-size: 11.5pt; line-height: 1.45; text-align: justify; color: #000; }
@@ -91,17 +91,17 @@
         
         .sig-block { margin-top: 25px; position: relative; }
         
-        .sig-space { position: relative; height: 50px; margin-bottom: 4px; }
+        .sig-space { position: relative; height: 60px; margin-bottom: 4px; } /* Increased height to stop overlap */
 
         .signature-overlay {
             position: absolute;
-            bottom: -5px;
+            bottom: 0;
             left: 10px;
             height: 60px; 
             width: auto;
             max-width: 200px;
             z-index: 10;
-            mix-blend-mode: multiply; /* Handles non-transparent signature files */
+            mix-blend-mode: multiply; 
         }
 
         .digital-signature-text {
@@ -113,18 +113,28 @@
             user-select: none;
         }
 
+        /* FIX: Changed to normal margin flow to stop button overlap */
         .cert-id {
             font-size: 8pt;
             color: #a0aec0;
             text-align: center;
-            position: absolute;
-            bottom: 40px;
-            left: 0;
-            width: 100%;
+            margin-top: 30px;
             font-family: monospace;
+            width: 100%;
         }
 
         p { margin-top: 0; margin-bottom: 14px; }
+
+        .action-btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 30px;
+            width: 100%;
+            z-index: 100;
+        }
+
+        .action-btn-container button { margin: 0; }
     </style>
 </head>
 <body>
@@ -191,7 +201,7 @@
             <div class="letter-content">
                 <p style="text-align: right;"><strong id="dateOut"></strong></p>
                 <p>To Whom It May Concern,</p>
-                <p style="text-align: center; font-size: 13pt; margin-bottom: 12px;"><strong>RE: MORTGAGE PRE-APPROVAL FINANCING</strong></p>
+                <p style="text-align: center; font-size: 12pt; margin-bottom: 12px;"><strong>RE: MORTGAGE PRE-APPROVAL FINANCING</strong></p>
 
                 <div class="re-box">
                     <div><strong>Borrower:</strong> <span id="nameOut"></span></div>
@@ -231,10 +241,10 @@
         </div>
 
         <div class="action-btn-container" id="actionButtons">
-            <button style="background: #28a745; margin: 0;" onclick="shareOrDownloadPDF()">Create & Share PDF</button>
-            <button style="background: #007bff; margin: 0;" onclick="copyToClipboard()">Copy Text Summary</button>
+            <button id="pdfBtn" style="background: #28a745;" onclick="shareOrDownloadPDF()">Create & Share PDF</button>
+            <button style="background: #007bff;" onclick="copyToClipboard()">Copy Text Summary</button>
+            <button style="background: #6c757d;" onclick="resetPortal()">Reset Portal</button>
         </div>
-        <button id="resetBtn" style="margin-top: 10px; background: #6c757d; width: 100%; max-width: 816px;" onclick="resetPortal()">Reset Portal</button>
     </div>
 
     <script>
@@ -369,56 +379,61 @@
             }
 
             document.getElementById('inputSlide').style.display = 'none';
-            
-            // Switch layout to document view
-            const docView = document.getElementById('documentView');
-            docView.style.display = 'flex';
-            docView.style.flexDirection = 'column';
-            docView.style.alignItems = 'center';
+            document.getElementById('documentView').style.display = 'flex';
             window.scrollTo(0,0);
         }
 
-        // NEW: Advanced HTML to PDF Engine with Mobile Share API integration
+        // UPDATED ERROR-PROOF PDF ENGINE
         function shareOrDownloadPDF() {
+            const btn = document.getElementById('pdfBtn');
             const element = document.getElementById('letterWrapper');
+            
+            // Add temporary class to expand the letter to perfect 8.5x11 for the engine
+            element.classList.add('pdf-export-mode');
+            
             const borrowerName = document.getElementById('nameOut').innerText.replace(/\s+/g, '_') || 'Borrower';
             const fileName = `PreApproval_${borrowerName}.pdf`;
 
-            // Configuration for perfect 1-page generation
+            btn.innerText = "Processing PDF...";
+            btn.style.opacity = "0.7";
+
             const opt = {
               margin:       0,
               filename:     fileName,
               image:        { type: 'jpeg', quality: 0.98 },
-              html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+              html2canvas:  { scale: 2, useCORS: true }, 
               jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
 
-            // Temporarily change button text so user knows it's working
-            const btn = document.querySelector('button[onclick="shareOrDownloadPDF()"]');
-            const originalText = btn.innerText;
-            btn.innerText = "Generating PDF...";
-            btn.style.opacity = "0.7";
-
-            // Generate the PDF
+            // Generate the PDF and process the Blob
             html2pdf().set(opt).from(element).outputPdf('blob').then(function(pdfBlob) {
-                btn.innerText = originalText;
+                
+                // Instantly remove the wide print class so your phone screen goes back to normal
+                element.classList.remove('pdf-export-mode');
+                btn.innerText = "Create & Share PDF";
                 btn.style.opacity = "1";
 
                 const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-                // Check if device supports direct native file sharing (iOS / Android)
+                // Open Native iOS / Android Share Menu
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     navigator.share({
                         files: [file],
                         title: 'HMS Pre-Approval Letter',
                         text: `Attached is the pre-approval letter for ${borrowerName}.`
                     }).catch(err => {
-                        console.log("Share cancelled or failed:", err);
+                        console.log("Share prompt cancelled or failed:", err);
                     });
                 } else {
-                    // Fallback to standard download if on Desktop or older browser
+                    // Fallback to strict download if native sharing isn't supported
                     html2pdf().set(opt).from(element).save();
                 }
+            }).catch(function(error) {
+                // If Github blocks the image, this prevents the button from freezing forever
+                alert("PDF Generation Blocked. Ensure images are fully loaded. Error: " + error);
+                element.classList.remove('pdf-export-mode');
+                btn.innerText = "Create & Share PDF";
+                btn.style.opacity = "1";
             });
         }
 
