@@ -7,8 +7,6 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght=500&family=Segoe+UI:wght=400;600&display=swap" rel="stylesheet">
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
     <style>
         :root {
             --primary: #005a9c;
@@ -30,7 +28,7 @@
 
         .slide-card {
             background: white;
-            padding: 30px;
+            padding: 25px;
             border-radius: 20px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             width: 100%;
@@ -50,18 +48,16 @@
         button { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 15px; }
         button:hover { filter: brightness(1.1); }
         
-        /* DOCUMENT VIEW CONTAINER - Scales properly for both Desktop & Mobile */
         #documentView {
             display: none;
             width: 100%;
-            max-width: 816px; /* Desktop width limit */
+            max-width: 816px; 
             flex-direction: column;
             align-items: center;
             padding-bottom: 60px;
             margin: 0 auto;
         }
 
-        /* LETTER WRAPPER */
         #letterWrapper { 
             background: white; 
             width: 100%;
@@ -73,41 +69,44 @@
             position: relative;
         }
 
-        /* ENGINE PDF MODE: Hardcodes perfect 8.5x11 scale for 1 second during capture */
-        .pdf-export-mode {
-            width: 816px !important;
-            max-width: 816px !important;
-            height: 1056px !important;
-            padding: 60px 75px !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            margin: 0 !important;
-        }
-
-        .letter-content { font-family: 'Times New Roman', Times, serif; font-size: 11.5pt; line-height: 1.45; text-align: justify; color: #000; }
+        .letter-content { font-family: 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.45; text-align: justify; color: #000; }
         
         .header { text-align: center; border-bottom: 2px solid var(--primary); margin-bottom: 20px; padding-bottom: 10px; }
-        .header img { width: 120px; height: auto; display: inline-block; } 
+        .header img { width: 120px; max-width: 120px; height: auto; display: inline-block; } 
         .contact-info { font-size: 9.5pt; color: #444; margin-top: 5px; }
         
-        .re-box { background: #f8f9fa; padding: 12px 15px; border-left: 4px solid var(--primary); margin: 15px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .re-box { background: #f8f9fa; padding: 10px 15px; border-left: 4px solid var(--primary); margin: 15px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
         
-        /* SIGNATURE FIX: Restored to normal document flow to prevent bottom overlapping */
-        .sig-block { margin-top: 30px; page-break-inside: avoid; }
+        .sig-block { margin-top: 25px; page-break-inside: avoid; }
         
-        #sigContainer {
-            height: 60px; 
-            margin-bottom: -15px; /* Pulls the signature down slightly over the line without absolute positioning */
+        /* RESTORED PERFECT SIGNATURE PLACEMENT AND TRANSPARENCY */
+        .sig-wrapper {
             position: relative;
-            z-index: 2;
+            height: 65px; 
+            margin-top: 10px;
+            margin-bottom: 5px;
+            width: 240px;
         }
 
         .signature-overlay {
-            height: 65px; 
+            position: absolute;
+            bottom: 5px; 
+            left: 10px;
+            height: 70px; 
             width: auto;
             max-width: 220px;
-            mix-blend-mode: multiply; /* Handles non-transparent signature files */
-            display: block;
+            mix-blend-mode: multiply !important; /* Forces the white background to disappear */
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .sig-line {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            width: 240px;
+            border-bottom: 1px solid #000;
+            z-index: 1; /* Sits UNDER the transparent image */
         }
 
         .digital-signature-text {
@@ -115,28 +114,30 @@
             font-size: 34pt;
             color: #0d233a; 
             line-height: 50px;
+            position: absolute;
+            bottom: 5px;
+            left: 10px;
             transform: rotate(-2.5deg); 
             user-select: none;
+            z-index: 10;
         }
 
-        /* ID FIX: Natively stacks beneath the text, pushing buttons down safely */
         .cert-id {
             font-size: 8pt;
             color: #a0aec0;
             text-align: center;
-            margin-top: 40px;
+            margin-top: 35px;
             font-family: monospace;
             width: 100%;
         }
 
-        p { margin-top: 0; margin-bottom: 14px; }
+        p { margin-top: 0; margin-bottom: 12px; }
 
-        /* ACTION BUTTONS */
         .action-btn-container {
             display: flex;
             flex-direction: column;
             gap: 12px;
-            margin-top: 40px;
+            margin-top: 30px;
             width: 100%;
         }
 
@@ -144,15 +145,18 @@
 
         @media print {
             @page { size: letter portrait; margin: 0; }
-            html, body {
-                background: white; height: 100%; padding: 0;
+            * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
+            }
+            html, body {
+                background: white; height: 100%; padding: 0;
             }
             .no-print { display: none !important; }
             #documentView { max-width: 100%; padding: 0; }
             #letterWrapper {
                 box-shadow: none; padding: 0.5in 0.75in; border-radius: 0;
+                width: 8.5in !important; height: 11in !important; max-width: 8.5in; overflow: hidden;
             }
         }
     </style>
@@ -248,8 +252,10 @@
 
                 <div class="sig-block">
                     Sincerely,<br>
-                    <div id="sigContainer"></div>
-                    <div style="width: 240px; border-bottom: 1px solid #000; margin-bottom: 4px; position: relative; z-index: 1;"></div>
+                    <div class="sig-wrapper">
+                        <div id="sigContainer"></div>
+                        <div class="sig-line"></div>
+                    </div>
                     <strong id="sigName"></strong><br>
                     Mortgage Broker / Owner<br>
                     Home Mortgage Solutions LLC<br>
@@ -261,7 +267,7 @@
         </div>
 
         <div class="action-btn-container no-print" id="actionButtons">
-            <button id="pdfBtn" style="background: #28a745;" onclick="shareOrDownloadPDF()">Create & Share PDF</button>
+            <button style="background: #28a745;" onclick="window.print()">Print / Open PDF Menu</button>
             <button style="background: #007bff;" onclick="copyToClipboard()">Copy Text Summary</button>
             <button style="background: #6c757d;" onclick="resetPortal()">Reset Portal</button>
         </div>
@@ -401,61 +407,6 @@
             document.getElementById('inputSlide').style.display = 'none';
             document.getElementById('documentView').style.display = 'flex';
             window.scrollTo(0,0);
-        }
-
-        // PDF ENGINE WITH FALLBACK ERROR CATCHING
-        function shareOrDownloadPDF() {
-            const btn = document.getElementById('pdfBtn');
-            const element = document.getElementById('letterWrapper');
-            
-            element.classList.add('pdf-export-mode');
-            
-            const borrowerName = document.getElementById('nameOut').innerText.replace(/\s+/g, '_') || 'Borrower';
-            const fileName = `PreApproval_${borrowerName}.pdf`;
-
-            btn.innerText = "Processing PDF...";
-            btn.style.opacity = "0.7";
-
-            const opt = {
-              margin:       0,
-              filename:     fileName,
-              image:        { type: 'jpeg', quality: 0.98 },
-              html2canvas:  { scale: 2, useCORS: true }, 
-              jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
-
-            // Attempt to generate PDF
-            html2pdf().set(opt).from(element).outputPdf('blob').then(function(pdfBlob) {
-                
-                element.classList.remove('pdf-export-mode');
-                btn.innerText = "Create & Share PDF";
-                btn.style.opacity = "1";
-
-                const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
-
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    navigator.share({
-                        files: [file],
-                        title: 'HMS Pre-Approval Letter',
-                        text: `Attached is the pre-approval letter for ${borrowerName}.`
-                    }).catch(err => {
-                        console.log("Share prompt cancelled:", err);
-                    });
-                } else {
-                    html2pdf().set(opt).from(element).save();
-                }
-            }).catch(function(error) {
-                // If local security blocks the images, catch the error and fallback to system print
-                element.classList.remove('pdf-export-mode');
-                btn.innerText = "Create & Share PDF";
-                btn.style.opacity = "1";
-                
-                console.error("PDF Engine Blocked by Browser Security:", error);
-                alert("Direct PDF engine blocked by browser security (usually because the file isn't uploaded yet). Opening standard Save/Print menu instead.");
-                
-                // Fallback to traditional system print
-                window.print();
-            });
         }
 
         function copyToClipboard() {
