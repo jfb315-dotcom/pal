@@ -62,32 +62,33 @@
             background: white; 
             width: 100%;
             box-sizing: border-box;
-            padding: 30px 40px; 
+            padding: 40px 50px; 
             margin: 0 auto; 
             box-shadow: 0 5px 20px rgba(0,0,0,0.1); 
             border-radius: 8px;
         }
 
-        .letter-content { font-family: 'Times New Roman', Times, serif; font-size: 10.5pt; line-height: 1.4; text-align: justify; color: #000; }
+        /* Restored to full, professional letter sizing */
+        .letter-content { font-family: 'Times New Roman', Times, serif; font-size: 11.5pt; line-height: 1.45; text-align: justify; color: #000; }
         
-        .header { text-align: center; border-bottom: 2px solid var(--primary); margin-bottom: 15px; padding-bottom: 8px; }
-        .header img { width: 110px; max-width: 110px; height: auto; display: inline-block; } 
-        .contact-info { font-size: 9pt; color: #444; margin-top: 5px; }
+        .header { text-align: center; border-bottom: 2px solid var(--primary); margin-bottom: 20px; padding-bottom: 10px; }
+        .header img { width: 120px; max-width: 120px; height: auto; display: inline-block; } 
+        .contact-info { font-size: 9.5pt; color: #444; margin-top: 5px; }
         
-        .re-box { background: #f8f9fa; padding: 8px 12px; border-left: 4px solid var(--primary); margin: 12px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+        .re-box { background: #f8f9fa; padding: 12px 15px; border-left: 4px solid var(--primary); margin: 15px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
         
-        .sig-block { margin-top: 20px; page-break-inside: avoid; }
+        .sig-block { margin-top: 25px; page-break-inside: avoid; }
         
         .cert-id {
             font-size: 8pt;
             color: #a0aec0;
             text-align: center;
-            margin-top: 20px;
+            margin-top: 25px;
             font-family: monospace;
             width: 100%;
         }
 
-        p { margin-top: 0; margin-bottom: 10px; }
+        p { margin-top: 0; margin-bottom: 12px; }
 
         .action-btn-container {
             display: flex;
@@ -99,9 +100,9 @@
 
         .action-btn-container button { margin: 0; width: 100%; }
 
-        /* AGGRESSIVE PRINT COMPRESSION - GUARANTEED 1 PAGE FIT */
+        /* CLEAN PRINT RULES - No extreme shrinking, just standard letter fit */
         @media print {
-            @page { size: letter portrait; margin: 0.3in; } /* Drastically reduces browser outer margin */
+            @page { size: letter portrait; margin: 0.5in; }
             * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
@@ -111,23 +112,10 @@
             
             #documentView { display: block !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
             
-            /* Eliminates the visual wrapper padding completely so it doesn't double-up with the page margin */
             #letterWrapper {
                 box-shadow: none !important; padding: 0 !important; border-radius: 0 !important;
                 width: 100% !important; max-width: 100% !important; border: none !important; margin: 0 !important;
             }
-
-            /* Force texts and spacing to shrink strictly for the paper */
-            .letter-content, p { font-size: 10pt !important; line-height: 1.25 !important; }
-            p { margin-bottom: 6px !important; }
-            
-            .header { margin-bottom: 8px !important; padding-bottom: 4px !important; }
-            .header img { width: 100px !important; max-width: 100px !important; }
-            
-            .re-box { margin: 6px 0 !important; padding: 4px 8px !important; font-size: 9pt !important; gap: 2px !important; }
-            
-            .sig-block { margin-top: 10px !important; }
-            .cert-id { margin-top: 10px !important; }
         }
     </style>
 </head>
@@ -195,7 +183,7 @@
             <div class="letter-content">
                 <p style="text-align: right;"><strong id="dateOut"></strong></p>
                 <p>To Whom It May Concern,</p>
-                <p style="text-align: center; font-size: 11pt; margin-bottom: 10px;"><strong>RE: MORTGAGE PRE-APPROVAL FINANCING</strong></p>
+                <p style="text-align: center; font-size: 11.5pt; margin-bottom: 12px;"><strong>RE: MORTGAGE PRE-APPROVAL FINANCING</strong></p>
 
                 <div class="re-box">
                     <div><strong>Borrower:</strong> <span id="nameOut"></span></div>
@@ -208,7 +196,7 @@
 
                 <p>This letter serves as formal confirmation that the borrower(s) listed above have been pre-approved for residential financing through <strong>Home Mortgage Solutions LLC</strong>.</p>
 
-                <p id="realtorLine" style="display:none; font-style: italic; background-color: #fcfcfc; padding: 5px; border: 1px dashed #cbd5e0; margin-bottom: 8px;"></p>
+                <p id="realtorLine" style="display:none; font-style: italic; background-color: #fcfcfc; padding: 6px; border: 1px dashed #cbd5e0; margin-bottom: 10px;"></p>
 
                 <p>Please note that final loan approval remains strictly subject to the receipt and underwriting satisfaction of a fully executed purchase contract and all applicable addendums, an acceptable property appraisal report, a clear title report, satisfactory property insurance policies, and the timely submission of all remaining background documentation requested for final underwriting sign-off.</p>
 
@@ -222,13 +210,13 @@
 
                 <div class="sig-block">
                     Sincerely,<br>
-                    <div id="sigContainer" style="height: 45px; margin-bottom: -15px; position: relative; z-index: 2;"></div>
-                    <div style="width: 220px; border-top: 1px solid #000; padding-top: 4px; margin-top: 0;">
-                        <strong id="sigName"></strong><br>
-                        Mortgage Broker / Owner<br>
-                        Home Mortgage Solutions LLC<br>
-                        <span id="sigEmail"></span>
-                    </div>
+                    
+                    <div id="sigContainer" style="height: 60px; margin: 8px 0; display: flex; align-items: center;"></div>
+                    
+                    <strong id="sigName"></strong><br>
+                    Mortgage Broker / Owner<br>
+                    Home Mortgage Solutions LLC<br>
+                    <span id="sigEmail"></span>
                 </div>
 
                 <div class="cert-id" id="validationIdOut"></div>
@@ -349,12 +337,13 @@
                 email = "john@hmsloan.com";
                 fullName = "John Bischof";
                 phoneText = "John Bischof at (423) 505-9811";
-                sigContainer.innerHTML = `<img src="john-sig.png" alt="John Bischof Signature" style="height: 60px; max-width: 220px; display: block; margin: 0; mix-blend-mode: multiply;">`;
+                // Solid, clean image drop. No overlapping lines. 
+                sigContainer.innerHTML = `<img src="john-sig.png" alt="John Bischof Signature" style="height: 60px; width: auto; display: block; margin: 0;">`;
             } else {
                 email = "darrell@hmsloan.com";
                 fullName = "Darrell Whitaker";
                 phoneText = "Darrell Whitaker at (423) 505-1376";
-                sigContainer.innerHTML = `<div style="font-family: 'Caveat', cursive; font-size: 34pt; color: #0d233a; line-height: 50px; transform: rotate(-2.5deg);">${fullName}</div>`;
+                sigContainer.innerHTML = `<div style="font-family: 'Caveat', cursive; font-size: 34pt; color: #0d233a; line-height: 60px; transform: rotate(-2.5deg);">${fullName}</div>`;
             }
 
             document.getElementById('headerEmail').innerText = email;
