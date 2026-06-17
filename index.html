@@ -99,9 +99,9 @@
 
         .action-btn-container button { margin: 0; width: 100%; }
 
-        /* ULTRA-CONDENSED PRINT RULES FOR A GUARANTEED 1-PAGE FIT */
+        /* AGGRESSIVE PRINT COMPRESSION - GUARANTEED 1 PAGE FIT */
         @media print {
-            @page { size: letter portrait; margin: 0.5in; }
+            @page { size: letter portrait; margin: 0.3in; } /* Drastically reduces browser outer margin */
             * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
@@ -110,18 +110,24 @@
             .no-print, #inputSlide, #actionButtons { display: none !important; }
             
             #documentView { display: block !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
+            
+            /* Eliminates the visual wrapper padding completely so it doesn't double-up with the page margin */
             #letterWrapper {
                 box-shadow: none !important; padding: 0 !important; border-radius: 0 !important;
-                width: 100% !important; max-width: 100% !important; border: none !important;
+                width: 100% !important; max-width: 100% !important; border: none !important; margin: 0 !important;
             }
 
-            /* Aggressively shrink vertical spacing to fight browser margins */
-            .letter-content { font-size: 10pt !important; line-height: 1.35 !important; }
-            p { margin-bottom: 8px !important; }
-            .header { margin-bottom: 12px !important; padding-bottom: 5px !important; }
-            .re-box { margin: 8px 0 !important; padding: 6px 10px !important; font-size: 9pt !important; }
-            .sig-block { margin-top: 15px !important; }
-            .cert-id { margin-top: 15px !important; }
+            /* Force texts and spacing to shrink strictly for the paper */
+            .letter-content, p { font-size: 10pt !important; line-height: 1.25 !important; }
+            p { margin-bottom: 6px !important; }
+            
+            .header { margin-bottom: 8px !important; padding-bottom: 4px !important; }
+            .header img { width: 100px !important; max-width: 100px !important; }
+            
+            .re-box { margin: 6px 0 !important; padding: 4px 8px !important; font-size: 9pt !important; gap: 2px !important; }
+            
+            .sig-block { margin-top: 10px !important; }
+            .cert-id { margin-top: 10px !important; }
         }
     </style>
 </head>
@@ -343,7 +349,6 @@
                 email = "john@hmsloan.com";
                 fullName = "John Bischof";
                 phoneText = "John Bischof at (423) 505-9811";
-                // FIXED: mix-blend-mode restored here so white pixels become transparent on top of the black line
                 sigContainer.innerHTML = `<img src="john-sig.png" alt="John Bischof Signature" style="height: 60px; max-width: 220px; display: block; margin: 0; mix-blend-mode: multiply;">`;
             } else {
                 email = "darrell@hmsloan.com";
