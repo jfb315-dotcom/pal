@@ -23,7 +23,7 @@
             justify-content: center;
             align-items: flex-start;
             min-height: 100vh;
-            padding: 20px;
+            padding: 15px;
         }
 
         .slide-card {
@@ -33,7 +33,7 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             width: 100%;
             max-width: 550px;
-            margin: 0 auto;
+            margin: 10px auto;
         }
 
         .logo-preview { text-align: center; margin-bottom: 20px; }
@@ -51,10 +51,10 @@
         #documentView {
             display: none;
             width: 100%;
-            max-width: 816px; 
+            max-width: 800px; 
             flex-direction: column;
             align-items: center;
-            padding-bottom: 60px;
+            padding-bottom: 40px;
             margin: 0 auto;
         }
 
@@ -62,11 +62,10 @@
             background: white; 
             width: 100%;
             box-sizing: border-box;
-            padding: 40px; 
+            padding: 40px 30px; 
             margin: 0 auto; 
             box-shadow: 0 5px 20px rgba(0,0,0,0.1); 
             border-radius: 8px;
-            position: relative;
         }
 
         .letter-content { font-family: 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.45; text-align: justify; color: #000; }
@@ -79,54 +78,11 @@
         
         .sig-block { margin-top: 25px; page-break-inside: avoid; }
         
-        /* RESTORED PERFECT SIGNATURE PLACEMENT AND TRANSPARENCY */
-        .sig-wrapper {
-            position: relative;
-            height: 65px; 
-            margin-top: 10px;
-            margin-bottom: 5px;
-            width: 240px;
-        }
-
-        .signature-overlay {
-            position: absolute;
-            bottom: 5px; 
-            left: 10px;
-            height: 70px; 
-            width: auto;
-            max-width: 220px;
-            mix-blend-mode: multiply !important; /* Forces the white background to disappear */
-            z-index: 10;
-            pointer-events: none;
-        }
-
-        .sig-line {
-            position: absolute;
-            bottom: 10px;
-            left: 0;
-            width: 240px;
-            border-bottom: 1px solid #000;
-            z-index: 1; /* Sits UNDER the transparent image */
-        }
-
-        .digital-signature-text {
-            font-family: 'Caveat', cursive;
-            font-size: 34pt;
-            color: #0d233a; 
-            line-height: 50px;
-            position: absolute;
-            bottom: 5px;
-            left: 10px;
-            transform: rotate(-2.5deg); 
-            user-select: none;
-            z-index: 10;
-        }
-
         .cert-id {
             font-size: 8pt;
             color: #a0aec0;
             text-align: center;
-            margin-top: 35px;
+            margin-top: 30px;
             font-family: monospace;
             width: 100%;
         }
@@ -137,26 +93,28 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            margin-top: 30px;
+            margin-top: 25px;
             width: 100%;
         }
 
         .action-btn-container button { margin: 0; width: 100%; }
 
+        /* CLEAN NATIVE PRINT ENGINE SETTINGS */
         @media print {
-            @page { size: letter portrait; margin: 0; }
+            @page { size: letter portrait; margin: 0.5in; }
             * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
             html, body {
-                background: white; height: 100%; padding: 0;
+                background: white; height: auto; padding: 0; margin: 0;
             }
-            .no-print { display: none !important; }
-            #documentView { max-width: 100%; padding: 0; }
+            .no-print, #inputSlide, #actionButtons { display: none !important; }
+            
+            #documentView { display: block !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
             #letterWrapper {
-                box-shadow: none; padding: 0.5in 0.75in; border-radius: 0;
-                width: 8.5in !important; height: 11in !important; max-width: 8.5in; overflow: hidden;
+                box-shadow: none !important; padding: 0 !important; border-radius: 0 !important;
+                width: 100% !important; max-width: 100% !important;
             }
         }
     </style>
@@ -252,14 +210,13 @@
 
                 <div class="sig-block">
                     Sincerely,<br>
-                    <div class="sig-wrapper">
-                        <div id="sigContainer"></div>
-                        <div class="sig-line"></div>
+                    <div id="sigContainer" style="margin-top: 5px;"></div>
+                    <div style="width: 240px; border-top: 1px solid #000; padding-top: 4px; margin-top: 2px;">
+                        <strong id="sigName"></strong><br>
+                        Mortgage Broker / Owner<br>
+                        Home Mortgage Solutions LLC<br>
+                        <span id="sigEmail"></span>
                     </div>
-                    <strong id="sigName"></strong><br>
-                    Mortgage Broker / Owner<br>
-                    Home Mortgage Solutions LLC<br>
-                    <span id="sigEmail"></span>
                 </div>
 
                 <div class="cert-id" id="validationIdOut"></div>
@@ -267,7 +224,7 @@
         </div>
 
         <div class="action-btn-container no-print" id="actionButtons">
-            <button style="background: #28a745;" onclick="window.print()">Print / Open PDF Menu</button>
+            <button style="background: #28a745;" onclick="window.print()">Print / Create PDF</button>
             <button style="background: #007bff;" onclick="copyToClipboard()">Copy Text Summary</button>
             <button style="background: #6c757d;" onclick="resetPortal()">Reset Portal</button>
         </div>
@@ -380,12 +337,14 @@
                 email = "john@hmsloan.com";
                 fullName = "John Bischof";
                 phoneText = "John Bischof at (423) 505-9811";
-                sigContainer.innerHTML = `<img src="john-sig.png" class="signature-overlay" alt="John Bischof Signature">`;
+                // Renders the image natively above the signature line. No mix-blend-mode required.
+                sigContainer.innerHTML = `<img src="john-sig.png" alt="John Bischof Signature" style="height: 55px; max-width: 220px; display: block; margin: 0;">`;
             } else {
                 email = "darrell@hmsloan.com";
                 fullName = "Darrell Whitaker";
                 phoneText = "Darrell Whitaker at (423) 505-1376";
-                sigContainer.innerHTML = `<div class="digital-signature-text">${fullName}</div>`;
+                // Text fallback
+                sigContainer.innerHTML = `<div style="font-family: 'Caveat', cursive; font-size: 34pt; color: #0d233a; line-height: 55px; transform: rotate(-2.5deg);">${fullName}</div>`;
             }
 
             document.getElementById('headerEmail').innerText = email;
