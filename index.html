@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HMS Pre-Approval Portal</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght=500&family=Segoe+UI:wght=400;600&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
         :root {
             --primary: #005a9c;
@@ -19,8 +23,9 @@
             margin: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start; /* Changed to flex-start so mobile scrolling works better */
             min-height: 100vh;
+            padding: 10px;
         }
 
         .slide-card {
@@ -30,10 +35,11 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             width: 100%;
             max-width: 550px;
+            margin-top: 20px;
         }
 
         .logo-preview { text-align: center; margin-bottom: 20px; }
-        .logo-preview img { width: 110px !important; max-width: 110px !important; height: auto; }
+        .logo-preview img { width: 110px; height: auto; }
         
         h2 { text-align: center; margin-bottom: 25px; color: var(--primary); }
         .input-group { margin-bottom: 15px; }
@@ -49,41 +55,44 @@
             grid-template-columns: 1fr 1fr;
             gap: 12px;
             margin-top: 20px;
+            width: 100%;
+            max-width: 816px; /* Matches letter width */
         }
 
+        /* This container holds the letter and allows it to scroll horizontally on small phone screens 
+           so the physical dimensions of the letter remain perfect for PDF generation.
+        */
+        #documentView {
+            display: none;
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 40px;
+        }
+
+        /* STRICT 8.5 x 11 Layout - Locked for PDF Engine */
         #letterWrapper { 
-            display: none; 
             background: white; 
-            width: 8.5in; 
-            max-width: 8.5in;
-            min-height: 11in;
+            width: 816px; /* Exact pixel width of 8.5 inches */
+            height: 1056px; /* Exact pixel height of 11 inches */
             box-sizing: border-box;
-            padding: 0.5in 0.8in; 
-            margin: 20px; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.1); 
-        }
-        .letter-content { font-family: 'Times New Roman', Times, serif; font-size: 10.5pt; line-height: 1.4; text-align: justify; }
-        .header { text-align: center; border-bottom: 2px solid var(--primary); margin-bottom: 12px; padding-bottom: 4px; }
-        .header img { width: 110px !important; max-width: 110px !important; height: auto; display: inline-block; } 
-        .contact-info { font-size: 9pt; color: #555; margin-top: 2px; }
-        
-        .re-box { background: #f8f9fa; padding: 8px 12px; border-left: 4px solid var(--primary); margin: 10px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
-        
-        /* Anchor for fixed signature stacking */
-        .sig-block { 
-            margin-top: 15px; 
+            padding: 50px 75px; 
+            margin: 0 auto; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.15); 
             position: relative;
-            page-break-inside: avoid; 
-        }
-        
-        /* signature graphic bounding box */
-        .sig-space {
-            position: relative;
-            height: 45px;
-            margin-bottom: 4px;
         }
 
-        /* DYNAMIC TRANSPARENCY RULE FOR NON-TRANSPARENT SIGNATURE FILES */
+        .letter-content { font-family: 'Times New Roman', Times, serif; font-size: 11.5pt; line-height: 1.45; text-align: justify; color: #000; }
+        
+        .header { text-align: center; border-bottom: 2px solid var(--primary); margin-bottom: 20px; padding-bottom: 10px; }
+        .header img { width: 120px; height: auto; display: inline-block; } 
+        .contact-info { font-size: 9.5pt; color: #444; margin-top: 5px; }
+        
+        .re-box { background: #f8f9fa; padding: 12px 15px; border-left: 4px solid var(--primary); margin: 15px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        
+        .sig-block { margin-top: 25px; position: relative; }
+        
+        .sig-space { position: relative; height: 50px; margin-bottom: 4px; }
+
         .signature-overlay {
             position: absolute;
             bottom: -5px;
@@ -92,81 +101,35 @@
             width: auto;
             max-width: 200px;
             z-index: 10;
-            pointer-events: none; 
-            
-            /* DYNAMIC TRANSPARENCY: */
-            /* Multiply blend mode knocks out the white background while keeping the dark signature lines. */
-            mix-blend-mode: multiply; 
+            mix-blend-mode: multiply; /* Handles non-transparent signature files */
         }
 
         .digital-signature-text {
             font-family: 'Caveat', cursive;
-            font-size: 32pt;
+            font-size: 34pt;
             color: #0d233a; 
-            line-height: 45px;
-            transform: rotate(-2deg); 
+            line-height: 50px;
+            transform: rotate(-2.5deg); 
             user-select: none;
         }
 
         .cert-id {
-            font-size: 7.5pt;
+            font-size: 8pt;
             color: #a0aec0;
             text-align: center;
-            margin-top: 20px;
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            width: 100%;
             font-family: monospace;
         }
 
-        p {
-            margin-top: 0;
-            margin-bottom: 10px; 
-        }
-
-        @media print {
-            @page {
-                size: letter portrait;
-                margin: 0px; 
-            }
-            html, body {
-                background: white;
-                height: 100%;
-                overflow: hidden;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            .no-print { display: none !important; }
-            #letterWrapper { 
-                display: block !important; 
-                margin: 0 !important; 
-                padding: 0.45in 0.75in !important; 
-                box-shadow: none !important;
-                width: 8.5in !important;
-                max-width: 8.5in !important;
-                height: 11in !important;
-                max-height: 11in !important;
-                overflow: hidden !important; 
-                box-sizing: border-box !important;
-                page-break-after: avoid;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            
-            /* Ensures blend modes are retained during PDF generation/printing */
-            #sigContainer img.signature-overlay {
-                -webkit-print-color-adjust: exact !important;
-                mix-blend-mode: multiply !important;
-            }
-            
-            .header img { width: 110px !important; max-width: 110px !important; }
-            .letter-content {
-                font-size: 10.5pt; 
-                line-height: 1.38;
-            }
-        }
+        p { margin-top: 0; margin-bottom: 14px; }
     </style>
 </head>
 <body>
 
-    <div class="slide-card no-print" id="inputSlide">
+    <div class="slide-card" id="inputSlide">
         <div class="logo-preview"><img src="email-logosmall.png" alt="HMS Logo"></div>
         <h2>Pre-Approval Portal</h2>
 
@@ -215,62 +178,63 @@
         <button onclick="generateLetter()">Generate Automated Letter</button>
     </div>
 
-    <div id="letterWrapper">
-        <div class="header">
-            <img src="email-logosmall.png" alt="Home Mortgage Solutions LLC">
-            <div class="contact-info">
-                31 Mouse Creek Road NW &bull; Cleveland, TN 37312<br>
-                Office: (423) 555-0199 &bull; Email: <span id="headerEmail"></span>
-            </div>
-        </div>
-
-        <div class="letter-content">
-            <p style="text-align: right;"><strong id="dateOut"></strong></p>
-            <p>To Whom It May Concern,</p>
-            <p style="text-align: center; font-size: 11.5pt; margin-bottom: 6px;"><strong>RE: MORTGAGE PRE-APPROVAL FINANCING</strong></p>
-
-            <div class="re-box">
-                <div><strong>Borrower:</strong> <span id="nameOut"></span></div>
-                <div><strong>Loan Program:</strong> <span id="progOut"></span></div>
-                <div><strong>Purchase Price:</strong> <span id="priceOut"></span></div>
-                <div><strong>Loan Amount:</strong> <span id="loanOut"></span></div>
-                <div><strong>Down Payment:</strong> <span id="downOut"></span></div>
-                <div><strong>LTV Percentage:</strong> <span id="ltvOut"></span></div>
-            </div>
-
-            <p>This letter serves as formal confirmation that the borrower(s) listed above have been pre-approved for residential financing through <strong>Home Mortgage Solutions LLC</strong>.</p>
-
-            <p id="realtorLine" style="display:none; font-style: italic; background-color: #fcfcfc; padding: 5px; border: 1px dashed #cbd5e0; margin-bottom: 8px;"></p>
-
-            <p>Please note that final loan approval remains strictly subject to the receipt and underwriting satisfaction of a fully executed purchase contract and all applicable addendums, an acceptable property appraisal report, a clear title report, satisfactory property insurance policies, and the timely submission of all remaining background documentation requested for final underwriting sign-off.</p>
-
-            <p>This Pre‐Approval does not constitute a final loan approval, a commitment to lend or a guarantee of interest rate, and should be considered a preliminary assessment of the applicant's ability to obtain a mortgage loan based on the current underwriting guidelines in place for the loan program requested.</p>
-            
-            <p>Once a purchase contract has been fully executed we will submit the collected documentation necessary to obtain loan approval from underwriting.</p>
-            
-            <p>I am privileged to assist you with your home financing needs. I realize there are many lenders to choose from and I appreciate you have selected my company, and you will receive unparallel customer service throughout your process and after. If you should have any questions, please feel free to contact me at <span id="contactCallout"></span>. I look forward to working with you.</p>
-
-            <p>This certificate remains an active validation of financial capability for a period of 90 days, officially expiring on <strong id="expireOut"></strong>.</p>
-
-            <div class="sig-block">
-                Sincerely,<br>
-                <div class="sig-space" id="sigContainer">
+    <div id="documentView">
+        <div id="letterWrapper">
+            <div class="header">
+                <img src="email-logosmall.png" alt="Home Mortgage Solutions LLC">
+                <div class="contact-info">
+                    31 Mouse Creek Road NW &bull; Cleveland, TN 37312<br>
+                    Office: (423) 555-0199 &bull; Email: <span id="headerEmail"></span>
                 </div>
-                <div style="width: 200px; border-bottom: 1px solid #000; margin-bottom: 4px;"></div>
-                <strong id="sigName"></strong><br>
-                Mortgage Broker / Owner<br>
-                Home Mortgage Solutions LLC<br>
-                <span id="sigEmail"></span>
             </div>
 
-            <div class="cert-id" id="validationIdOut"></div>
+            <div class="letter-content">
+                <p style="text-align: right;"><strong id="dateOut"></strong></p>
+                <p>To Whom It May Concern,</p>
+                <p style="text-align: center; font-size: 13pt; margin-bottom: 12px;"><strong>RE: MORTGAGE PRE-APPROVAL FINANCING</strong></p>
+
+                <div class="re-box">
+                    <div><strong>Borrower:</strong> <span id="nameOut"></span></div>
+                    <div><strong>Loan Program:</strong> <span id="progOut"></span></div>
+                    <div><strong>Purchase Price:</strong> <span id="priceOut"></span></div>
+                    <div><strong>Loan Amount:</strong> <span id="loanOut"></span></div>
+                    <div><strong>Down Payment:</strong> <span id="downOut"></span></div>
+                    <div><strong>LTV Percentage:</strong> <span id="ltvOut"></span></div>
+                </div>
+
+                <p>This letter serves as formal confirmation that the borrower(s) listed above have been pre-approved for residential financing through <strong>Home Mortgage Solutions LLC</strong>.</p>
+
+                <p id="realtorLine" style="display:none; font-style: italic; background-color: #fcfcfc; padding: 6px; border: 1px dashed #cbd5e0; margin-bottom: 10px;"></p>
+
+                <p>Please note that final loan approval remains strictly subject to the receipt and underwriting satisfaction of a fully executed purchase contract and all applicable addendums, an acceptable property appraisal report, a clear title report, satisfactory property insurance policies, and the timely submission of all remaining background documentation requested for final underwriting sign-off.</p>
+
+                <p>This Pre‐Approval does not constitute a final loan approval, a commitment to lend or a guarantee of interest rate, and should be considered a preliminary assessment of the applicant's ability to obtain a mortgage loan based on the current underwriting guidelines in place for the loan program requested.</p>
+                
+                <p>Once a purchase contract has been fully executed we will submit the collected documentation necessary to obtain loan approval from underwriting.</p>
+                
+                <p>I am privileged to assist you with your home financing needs. I realize there are many lenders to choose from and I appreciate you have selected my company, and you will receive unparallel customer service throughout your process and after. If you should have any questions, please feel free to contact me at <span id="contactCallout"></span>. I look forward to working with you.</p>
+
+                <p>This certificate remains an active validation of financial capability for a period of 90 days, officially expiring on <strong id="expireOut"></strong>.</p>
+
+                <div class="sig-block">
+                    Sincerely,<br>
+                    <div class="sig-space" id="sigContainer"></div>
+                    <div style="width: 240px; border-bottom: 1px solid #000; margin-bottom: 4px;"></div>
+                    <strong id="sigName"></strong><br>
+                    Mortgage Broker / Owner<br>
+                    Home Mortgage Solutions LLC<br>
+                    <span id="sigEmail"></span>
+                </div>
+
+                <div class="cert-id" id="validationIdOut"></div>
+            </div>
         </div>
 
-        <div class="action-btn-container no-print">
-            <button style="background: #28a745; margin: 0;" onclick="window.print()">Print / Save PDF</button>
-            <button style="background: #007bff; margin: 0;" onclick="copyToClipboard()">Copy Summary Data</button>
+        <div class="action-btn-container" id="actionButtons">
+            <button style="background: #28a745; margin: 0;" onclick="shareOrDownloadPDF()">Create & Share PDF</button>
+            <button style="background: #007bff; margin: 0;" onclick="copyToClipboard()">Copy Text Summary</button>
         </div>
-        <button class="no-print" style="margin-top: 10px; background: #6c757d; width: 100%;" onclick="resetPortal()">Reset Portal</button>
+        <button id="resetBtn" style="margin-top: 10px; background: #6c757d; width: 100%; max-width: 816px;" onclick="resetPortal()">Reset Portal</button>
     </div>
 
     <script>
@@ -380,13 +344,11 @@
                 email = "john@hmsloan.com";
                 fullName = "John Bischof";
                 phoneText = "John Bischof at (423) 505-9811";
-                // Renders the real signature file on top
                 sigContainer.innerHTML = `<img src="john-sig.png" class="signature-overlay" alt="John Bischof Signature">`;
             } else {
                 email = "darrell@hmsloan.com";
                 fullName = "Darrell Whitaker";
                 phoneText = "Darrell Whitaker at (423) 505-1376";
-                // Falls back to text signature
                 sigContainer.innerHTML = `<div class="digital-signature-text">${fullName}</div>`;
             }
 
@@ -407,8 +369,57 @@
             }
 
             document.getElementById('inputSlide').style.display = 'none';
-            document.getElementById('letterWrapper').style.display = 'block';
+            
+            // Switch layout to document view
+            const docView = document.getElementById('documentView');
+            docView.style.display = 'flex';
+            docView.style.flexDirection = 'column';
+            docView.style.alignItems = 'center';
             window.scrollTo(0,0);
+        }
+
+        // NEW: Advanced HTML to PDF Engine with Mobile Share API integration
+        function shareOrDownloadPDF() {
+            const element = document.getElementById('letterWrapper');
+            const borrowerName = document.getElementById('nameOut').innerText.replace(/\s+/g, '_') || 'Borrower';
+            const fileName = `PreApproval_${borrowerName}.pdf`;
+
+            // Configuration for perfect 1-page generation
+            const opt = {
+              margin:       0,
+              filename:     fileName,
+              image:        { type: 'jpeg', quality: 0.98 },
+              html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+              jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            // Temporarily change button text so user knows it's working
+            const btn = document.querySelector('button[onclick="shareOrDownloadPDF()"]');
+            const originalText = btn.innerText;
+            btn.innerText = "Generating PDF...";
+            btn.style.opacity = "0.7";
+
+            // Generate the PDF
+            html2pdf().set(opt).from(element).outputPdf('blob').then(function(pdfBlob) {
+                btn.innerText = originalText;
+                btn.style.opacity = "1";
+
+                const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+                // Check if device supports direct native file sharing (iOS / Android)
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    navigator.share({
+                        files: [file],
+                        title: 'HMS Pre-Approval Letter',
+                        text: `Attached is the pre-approval letter for ${borrowerName}.`
+                    }).catch(err => {
+                        console.log("Share cancelled or failed:", err);
+                    });
+                } else {
+                    // Fallback to standard download if on Desktop or older browser
+                    html2pdf().set(opt).from(element).save();
+                }
+            });
         }
 
         function copyToClipboard() {
