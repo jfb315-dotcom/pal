@@ -99,14 +99,15 @@
 
         .action-btn-container button { margin: 0; width: 100%; }
 
-        /* BULLETPROOF PRINT COMPRESSION */
+        /* THE 1-PAGE MOBILE PRINT COMPRESSION FIX */
         @media print {
-            @page { margin: 0.4in; } /* Gives the printer just enough room without shrinking the document */
+            @page { size: letter portrait; margin: 0.3in; } 
             * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-            html, body { background: white; height: auto; padding: 0; margin: 0; }
+            /* Min-height auto stops iOS from forcing a second blank page */
+            html, body { background: white; height: auto !important; min-height: auto !important; padding: 0 !important; margin: 0 !important; }
             .no-print, #inputSlide, #actionButtons { display: none !important; }
             
             #documentView { display: block !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
@@ -115,13 +116,14 @@
                 width: 100% !important; max-width: 100% !important; border: none !important; margin: 0 !important;
             }
 
-            /* Tighten the font sizes slightly so it absolutely never hits Page 2 */
-            .letter-content { font-size: 10.5pt !important; line-height: 1.35 !important; }
-            p { margin-bottom: 8px !important; }
-            .header { margin-bottom: 15px !important; padding-bottom: 5px !important; }
-            .re-box { margin: 10px 0 !important; padding: 8px 12px !important; font-size: 9.5pt !important; }
+            /* Ultra-tight font and spacing to easily fit on one page */
+            .letter-content { font-size: 10pt !important; line-height: 1.25 !important; }
+            p { margin-bottom: 6px !important; }
+            .header { margin-bottom: 10px !important; padding-bottom: 5px !important; }
+            .header img { width: 100px !important; max-width: 100px !important; }
+            .re-box { margin: 8px 0 !important; padding: 6px 10px !important; font-size: 9pt !important; gap: 2px !important; }
             .sig-block { margin-top: 15px !important; }
-            .cert-id { margin-top: 15px !important; }
+            .cert-id { margin-top: 15px !important; font-size: 7.5pt !important; }
         }
     </style>
 </head>
@@ -189,7 +191,7 @@
             <div class="letter-content">
                 <p style="text-align: right;"><strong id="dateOut"></strong></p>
                 <p>To Whom It May Concern,</p>
-                <p style="text-align: center; font-size: 11.5pt; margin-bottom: 12px;"><strong>RE: MORTGAGE PRE-APPROVAL FINANCING</strong></p>
+                <p style="text-align: center; font-size: 11pt; margin-bottom: 10px;"><strong>RE: MORTGAGE PRE-APPROVAL FINANCING</strong></p>
 
                 <div class="re-box">
                     <div><strong>Borrower:</strong> <span id="nameOut"></span></div>
@@ -202,7 +204,7 @@
 
                 <p>This letter serves as formal confirmation that the borrower(s) listed above have been pre-approved for residential financing through <strong>Home Mortgage Solutions LLC</strong>.</p>
 
-                <p id="realtorLine" style="display:none; font-style: italic; background-color: #fcfcfc; padding: 6px; border: 1px dashed #cbd5e0; margin-bottom: 10px;"></p>
+                <p id="realtorLine" style="display:none; font-style: italic; background-color: #fcfcfc; padding: 5px; border: 1px dashed #cbd5e0; margin-bottom: 8px;"></p>
 
                 <p>Please note that final loan approval remains strictly subject to the receipt and underwriting satisfaction of a fully executed purchase contract and all applicable addendums, an acceptable property appraisal report, a clear title report, satisfactory property insurance policies, and the timely submission of all remaining background documentation requested for final underwriting sign-off.</p>
 
@@ -217,19 +219,14 @@
                 <div class="sig-block">
                     Sincerely,<br>
                     
-                    <div style="position: relative; height: 50px; margin: 10px 0; width: 250px;">
-                        
-                        <img id="sigImageOverlay" src="john-sig.png" alt="Signature" style="display: none; position: absolute; bottom: 0px; left: 10px; height: 80px; width: auto; max-width: 240px; mix-blend-mode: multiply; pointer-events: none; z-index: 10;">
-                        
-                        <div id="sigTextFallback" style="display: none; position: absolute; bottom: 0px; left: 10px; font-family: 'Caveat', cursive; font-size: 32pt; color: #0d233a; transform: rotate(-2.5deg); z-index: 10;"></div>
-                        
-                        <div style="position: absolute; bottom: 5px; left: 0; width: 220px; border-bottom: 1px solid #000; z-index: 1;"></div>
-                    </div>
+                    <div id="sigContainer" style="margin-top: 10px;"></div>
                     
-                    <strong id="sigName"></strong><br>
-                    Mortgage Broker / Owner<br>
-                    Home Mortgage Solutions LLC<br>
-                    <span id="sigEmail"></span>
+                    <div style="width: 240px; border-top: 1.5px solid #000; padding-top: 4px; margin-top: 4px;">
+                        <strong id="sigName"></strong><br>
+                        Mortgage Broker / Owner<br>
+                        Home Mortgage Solutions LLC<br>
+                        <span id="sigEmail"></span>
+                    </div>
                 </div>
 
                 <div class="cert-id" id="validationIdOut"></div>
@@ -344,25 +341,20 @@
             let email = "";
             let fullName = "";
             let phoneText = "";
-            
-            const sigImage = document.getElementById('sigImageOverlay');
-            const sigText = document.getElementById('sigTextFallback');
+            let sigContainer = document.getElementById('sigContainer');
 
             if (sig === "john") {
                 email = "john@hmsloan.com";
                 fullName = "John Bischof";
                 phoneText = "John Bischof at (423) 505-9811";
-                
-                sigImage.style.display = "block";
-                sigText.style.display = "none";
+                // Standard image block. It sits securely ABOVE the line. No overlapping.
+                sigContainer.innerHTML = `<img src="john-sig.png" alt="John Bischof Signature" style="height: 55px; width: auto; max-width: 220px; display: block; margin: 0;">`;
             } else {
                 email = "darrell@hmsloan.com";
                 fullName = "Darrell Whitaker";
                 phoneText = "Darrell Whitaker at (423) 505-1376";
-                
-                sigImage.style.display = "none";
-                sigText.style.display = "block";
-                sigText.innerText = fullName;
+                // Text fallback
+                sigContainer.innerHTML = `<div style="font-family: 'Caveat', cursive; font-size: 34pt; color: #0d233a; line-height: 55px; transform: rotate(-2.5deg); margin-left: 10px;">${fullName}</div>`;
             }
 
             document.getElementById('headerEmail').innerText = email;
