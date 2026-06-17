@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HMS Pre-Approval Portal</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght=500&family=Segoe+UI:wght=400;600&display=swap" rel="stylesheet">
@@ -25,17 +25,17 @@
             justify-content: center;
             align-items: flex-start;
             min-height: 100vh;
-            padding: 15px;
+            padding: 20px;
         }
 
         .slide-card {
             background: white;
-            padding: 25px;
+            padding: 30px;
             border-radius: 20px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             width: 100%;
             max-width: 550px;
-            margin-top: 10px;
+            margin: 0 auto;
         }
 
         .logo-preview { text-align: center; margin-bottom: 20px; }
@@ -50,35 +50,38 @@
         button { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 15px; }
         button:hover { filter: brightness(1.1); }
         
+        /* DOCUMENT VIEW CONTAINER - Scales properly for both Desktop & Mobile */
         #documentView {
             display: none;
             width: 100%;
-            max-width: 600px; /* Keeps it readable on phones */
+            max-width: 816px; /* Desktop width limit */
             flex-direction: column;
             align-items: center;
             padding-bottom: 60px;
+            margin: 0 auto;
         }
 
-        /* MOBILE-FRIENDLY LETTER WRAPPER (Adapts to phone screen) */
+        /* LETTER WRAPPER */
         #letterWrapper { 
             background: white; 
             width: 100%;
             box-sizing: border-box;
-            padding: 25px; 
+            padding: 40px; 
             margin: 0 auto; 
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08); 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1); 
             border-radius: 8px;
             position: relative;
         }
 
-        /* HIDDEN PRINT-MODE CLASS: Temporarily forces 8.5x11 strictly for PDF engine */
+        /* ENGINE PDF MODE: Hardcodes perfect 8.5x11 scale for 1 second during capture */
         .pdf-export-mode {
             width: 816px !important;
             max-width: 816px !important;
             height: 1056px !important;
-            padding: 50px 75px !important;
+            padding: 60px 75px !important;
             border-radius: 0 !important;
             box-shadow: none !important;
+            margin: 0 !important;
         }
 
         .letter-content { font-family: 'Times New Roman', Times, serif; font-size: 11.5pt; line-height: 1.45; text-align: justify; color: #000; }
@@ -89,19 +92,22 @@
         
         .re-box { background: #f8f9fa; padding: 12px 15px; border-left: 4px solid var(--primary); margin: 15px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
         
-        .sig-block { margin-top: 25px; position: relative; }
+        /* SIGNATURE FIX: Restored to normal document flow to prevent bottom overlapping */
+        .sig-block { margin-top: 30px; page-break-inside: avoid; }
         
-        .sig-space { position: relative; height: 60px; margin-bottom: 4px; } /* Increased height to stop overlap */
+        #sigContainer {
+            height: 60px; 
+            margin-bottom: -15px; /* Pulls the signature down slightly over the line without absolute positioning */
+            position: relative;
+            z-index: 2;
+        }
 
         .signature-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 10px;
-            height: 60px; 
+            height: 65px; 
             width: auto;
-            max-width: 200px;
-            z-index: 10;
-            mix-blend-mode: multiply; 
+            max-width: 220px;
+            mix-blend-mode: multiply; /* Handles non-transparent signature files */
+            display: block;
         }
 
         .digital-signature-text {
@@ -113,33 +119,47 @@
             user-select: none;
         }
 
-        /* FIX: Changed to normal margin flow to stop button overlap */
+        /* ID FIX: Natively stacks beneath the text, pushing buttons down safely */
         .cert-id {
             font-size: 8pt;
             color: #a0aec0;
             text-align: center;
-            margin-top: 30px;
+            margin-top: 40px;
             font-family: monospace;
             width: 100%;
         }
 
         p { margin-top: 0; margin-bottom: 14px; }
 
+        /* ACTION BUTTONS */
         .action-btn-container {
             display: flex;
             flex-direction: column;
             gap: 12px;
-            margin-top: 30px;
+            margin-top: 40px;
             width: 100%;
-            z-index: 100;
         }
 
-        .action-btn-container button { margin: 0; }
+        .action-btn-container button { margin: 0; width: 100%; }
+
+        @media print {
+            @page { size: letter portrait; margin: 0; }
+            html, body {
+                background: white; height: 100%; padding: 0;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .no-print { display: none !important; }
+            #documentView { max-width: 100%; padding: 0; }
+            #letterWrapper {
+                box-shadow: none; padding: 0.5in 0.75in; border-radius: 0;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <div class="slide-card" id="inputSlide">
+    <div class="slide-card no-print" id="inputSlide">
         <div class="logo-preview"><img src="email-logosmall.png" alt="HMS Logo"></div>
         <h2>Pre-Approval Portal</h2>
 
@@ -228,8 +248,8 @@
 
                 <div class="sig-block">
                     Sincerely,<br>
-                    <div class="sig-space" id="sigContainer"></div>
-                    <div style="width: 240px; border-bottom: 1px solid #000; margin-bottom: 4px;"></div>
+                    <div id="sigContainer"></div>
+                    <div style="width: 240px; border-bottom: 1px solid #000; margin-bottom: 4px; position: relative; z-index: 1;"></div>
                     <strong id="sigName"></strong><br>
                     Mortgage Broker / Owner<br>
                     Home Mortgage Solutions LLC<br>
@@ -240,7 +260,7 @@
             </div>
         </div>
 
-        <div class="action-btn-container" id="actionButtons">
+        <div class="action-btn-container no-print" id="actionButtons">
             <button id="pdfBtn" style="background: #28a745;" onclick="shareOrDownloadPDF()">Create & Share PDF</button>
             <button style="background: #007bff;" onclick="copyToClipboard()">Copy Text Summary</button>
             <button style="background: #6c757d;" onclick="resetPortal()">Reset Portal</button>
@@ -383,12 +403,11 @@
             window.scrollTo(0,0);
         }
 
-        // UPDATED ERROR-PROOF PDF ENGINE
+        // PDF ENGINE WITH FALLBACK ERROR CATCHING
         function shareOrDownloadPDF() {
             const btn = document.getElementById('pdfBtn');
             const element = document.getElementById('letterWrapper');
             
-            // Add temporary class to expand the letter to perfect 8.5x11 for the engine
             element.classList.add('pdf-export-mode');
             
             const borrowerName = document.getElementById('nameOut').innerText.replace(/\s+/g, '_') || 'Borrower';
@@ -405,35 +424,37 @@
               jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
 
-            // Generate the PDF and process the Blob
+            // Attempt to generate PDF
             html2pdf().set(opt).from(element).outputPdf('blob').then(function(pdfBlob) {
                 
-                // Instantly remove the wide print class so your phone screen goes back to normal
                 element.classList.remove('pdf-export-mode');
                 btn.innerText = "Create & Share PDF";
                 btn.style.opacity = "1";
 
                 const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-                // Open Native iOS / Android Share Menu
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     navigator.share({
                         files: [file],
                         title: 'HMS Pre-Approval Letter',
                         text: `Attached is the pre-approval letter for ${borrowerName}.`
                     }).catch(err => {
-                        console.log("Share prompt cancelled or failed:", err);
+                        console.log("Share prompt cancelled:", err);
                     });
                 } else {
-                    // Fallback to strict download if native sharing isn't supported
                     html2pdf().set(opt).from(element).save();
                 }
             }).catch(function(error) {
-                // If Github blocks the image, this prevents the button from freezing forever
-                alert("PDF Generation Blocked. Ensure images are fully loaded. Error: " + error);
+                // If local security blocks the images, catch the error and fallback to system print
                 element.classList.remove('pdf-export-mode');
                 btn.innerText = "Create & Share PDF";
                 btn.style.opacity = "1";
+                
+                console.error("PDF Engine Blocked by Browser Security:", error);
+                alert("Direct PDF engine blocked by browser security (usually because the file isn't uploaded yet). Opening standard Save/Print menu instead.");
+                
+                // Fallback to traditional system print
+                window.print();
             });
         }
 
