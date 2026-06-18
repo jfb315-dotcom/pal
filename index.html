@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HMS Pre-Approval Portal</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght=500&family=Segoe+UI:wght=400;600&display=swap" rel="stylesheet">
@@ -34,6 +34,7 @@
             width: 100%;
             max-width: 550px;
             margin: 10px auto;
+            box-sizing: border-box;
         }
 
         .logo-preview { text-align: center; margin-bottom: 20px; }
@@ -42,16 +43,19 @@
         h2 { text-align: center; margin-bottom: 25px; color: var(--primary); }
         .input-group { margin-bottom: 15px; }
         label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; color: #4a5568; }
-        input, select { width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
+        input, select { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
         input:focus { border-color: var(--primary); outline: none; }
         .dual-input { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        button { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        
+        /* App-like Action Buttons */
+        button { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.15rem; font-weight: bold; cursor: pointer; margin-top: 15px; touch-action: manipulation; }
         button:hover { filter: brightness(1.1); }
         
+        /* Mobile-Friendly Document Layout */
         #documentView {
             display: none;
             width: 100%;
-            max-width: 800px; 
+            max-width: 600px; /* Keeps it readable on both mobile and desktop */
             flex-direction: column;
             align-items: center;
             padding-bottom: 40px;
@@ -62,30 +66,24 @@
             background: white; 
             width: 100%;
             box-sizing: border-box;
-            padding: 40px 50px; 
+            padding: 25px 20px; /* Fluid padding for phone screens */
             margin: 0 auto; 
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1); 
-            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08); 
+            border-radius: 12px;
         }
 
-        .letter-content { font-family: 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.45; text-align: justify; color: #000; }
+        .letter-content { font-family: 'Times New Roman', Times, serif; font-size: 11.5pt; line-height: 1.45; text-align: justify; color: #000; }
         
         .header { text-align: center; border-bottom: 2px solid var(--primary); margin-bottom: 20px; padding-bottom: 10px; }
         .header img { width: 120px; max-width: 120px; height: auto; display: inline-block; } 
         .contact-info { font-size: 9.5pt; color: #444; margin-top: 5px; }
         
-        .re-box { background: #f8f9fa; padding: 10px 15px; border-left: 4px solid var(--primary); margin: 15px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        /* Stacks cleanly on mobile */
+        .re-box { background: #f8f9fa; padding: 12px; border-left: 4px solid var(--primary); margin: 15px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 10.5pt; }
         
         .sig-block { margin-top: 25px; page-break-inside: avoid; }
         
-        .cert-id {
-            font-size: 8pt;
-            color: #a0aec0;
-            text-align: center;
-            margin-top: 25px;
-            font-family: monospace;
-            width: 100%;
-        }
+        .cert-id { font-size: 8pt; color: #a0aec0; text-align: center; margin-top: 25px; font-family: monospace; width: 100%; }
 
         p { margin-top: 0; margin-bottom: 12px; }
 
@@ -99,48 +97,42 @@
 
         .action-btn-container button { margin: 0; width: 100%; }
 
-        /* THE BRUTE-FORCE 1-PAGE PRINT LOCK */
+        /* =========================================
+           STRICT 1-PAGE PRINT OVERRIDES
+           ========================================= */
         @media print {
-            /* Strip all device margins */
-            @page { size: letter portrait; margin: 0 !important; } 
+            @page { size: letter portrait; margin: 0.3in; } 
             
             * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-
-            /* Physically lock the document size to exactly one 8.5x11 page */
+            
+            /* The Kill-Switch: Forces 1 Page exactly, kills the 2nd blank page */
             html, body { 
-                background: white; 
-                width: 8.5in !important; 
-                height: 11in !important; 
+                background: white !important; 
+                height: 100% !important; 
+                max-height: 10.4in !important; 
                 margin: 0 !important; 
                 padding: 0 !important; 
-                overflow: hidden !important; /* This is the kill-switch for the 2nd page */
+                overflow: hidden !important; 
             }
             
             .no-print, #inputSlide, #actionButtons { display: none !important; }
             
-            #documentView { 
-                display: block !important; 
-                width: 100% !important; 
-                height: 100% !important; 
-                padding: 0.4in 0.6in !important; /* Re-apply clean margins internally */
-                box-sizing: border-box !important;
-                margin: 0 !important; 
-            }
-
+            #documentView { display: block !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+            
             #letterWrapper {
                 box-shadow: none !important; padding: 0 !important; border-radius: 0 !important;
-                width: 100% !important; border: none !important; margin: 0 !important;
+                width: 100% !important; max-width: 100% !important; border: none !important; margin: 0 !important;
             }
 
-            /* Squeeze the fonts slightly so everything rests comfortably in the space */
-            .letter-content { font-size: 10pt !important; line-height: 1.3 !important; }
+            /* Tightens the text strictly for the piece of paper */
+            .letter-content { font-size: 10.5pt !important; line-height: 1.35 !important; }
             p { margin-bottom: 8px !important; }
             .header { margin-bottom: 10px !important; padding-bottom: 5px !important; }
             .header img { width: 100px !important; max-width: 100px !important; }
-            .re-box { margin: 8px 0 !important; padding: 6px 10px !important; font-size: 9pt !important; gap: 2px !important; }
+            .re-box { margin: 10px 0 !important; padding: 8px 12px !important; font-size: 9.5pt !important; }
             .sig-block { margin-top: 15px !important; }
             .cert-id { margin-top: 15px !important; font-size: 7.5pt !important; }
         }
@@ -253,9 +245,9 @@
         </div>
 
         <div class="action-btn-container no-print" id="actionButtons">
-            <button style="background: #28a745;" onclick="window.print()">Print / Create PDF</button>
-            <button style="background: #007bff;" onclick="copyToClipboard()">Copy Text Summary</button>
-            <button style="background: #6c757d;" onclick="resetPortal()">Reset Portal</button>
+            <button style="background: #28a745;" onclick="window.print()">🖨️ Print / Save as PDF</button>
+            <button style="background: #007bff;" onclick="copyToClipboard()">📋 Copy Text Summary</button>
+            <button style="background: #6c757d;" onclick="resetPortal()">🔄 Reset Portal</button>
         </div>
     </div>
 
