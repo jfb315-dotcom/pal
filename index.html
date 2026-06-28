@@ -4,16 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HMS Pre-Approval Portal</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght=500&family=Segoe+UI:wght=400;600&display=swap" rel="stylesheet">
-    
+   
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
+   
     <style>
         :root {
             --primary: #005a9c;
             --bg: #f0f2f5;
             --text: #1a202c;
         }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg);
@@ -25,7 +24,6 @@
             min-height: 100vh;
             padding: 15px;
         }
-
         .slide-card {
             background: white;
             padding: 25px;
@@ -36,57 +34,50 @@
             margin: 10px auto;
             box-sizing: border-box;
         }
-
-        .logo-preview { text-align: center; margin-bottom: 20px; }
+        .logo-preview { text-align: center; margin-bottom: 15px; }
         .logo-preview img { width: 110px; height: auto; }
-        
-        h2 { text-align: center; margin-bottom: 25px; color: var(--primary); }
+       
+        h2 { text-align: center; margin-bottom: 20px; color: var(--primary); }
         .input-group { margin-bottom: 15px; }
         label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; color: #4a5568; }
         input, select { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
         input:focus { border-color: var(--primary); outline: none; }
         .dual-input { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        
-        /* App-like Action Buttons */
+       
         button { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.15rem; font-weight: bold; cursor: pointer; margin-top: 15px; touch-action: manipulation; }
         button:hover { filter: brightness(1.1); }
-        
-        /* Mobile-Friendly Document Layout */
+       
         #documentView {
             display: none;
             width: 100%;
-            max-width: 600px; /* Keeps it readable on both mobile and desktop */
+            max-width: 600px;
             flex-direction: column;
             align-items: center;
             padding-bottom: 40px;
             margin: 0 auto;
         }
-
-        #letterWrapper { 
-            background: white; 
+        #letterWrapper {
+            background: white;
             width: 100%;
             box-sizing: border-box;
-            padding: 25px 20px; /* Fluid padding for phone screens */
-            margin: 0 auto; 
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08); 
+            padding: 25px 20px;
+            margin: 0 auto;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
             border-radius: 12px;
         }
-
         .letter-content { font-family: 'Times New Roman', Times, serif; font-size: 11.5pt; line-height: 1.45; text-align: justify; color: #000; }
-        
+       
         .header { text-align: center; border-bottom: 2px solid var(--primary); margin-bottom: 20px; padding-bottom: 10px; }
-        .header img { width: 120px; max-width: 120px; height: auto; display: inline-block; } 
+        .header img { width: 120px; max-width: 120px; height: auto; display: inline-block; }
         .contact-info { font-size: 9.5pt; color: #444; margin-top: 5px; }
-        
-        /* Stacks cleanly on mobile */
+       
         .re-box { background: #f8f9fa; padding: 12px; border-left: 4px solid var(--primary); margin: 15px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 10.5pt; }
-        
+       
         .sig-block { margin-top: 25px; page-break-inside: avoid; }
-        
+       
         .cert-id { font-size: 8pt; color: #a0aec0; text-align: center; margin-top: 25px; font-family: monospace; width: 100%; }
-
         p { margin-top: 0; margin-bottom: 12px; }
-
+        
         .action-btn-container {
             display: flex;
             flex-direction: column;
@@ -94,40 +85,51 @@
             margin-top: 25px;
             width: 100%;
         }
-
         .action-btn-container button { margin: 0; width: 100%; }
+        
+        #liveSummary {
+            background: #f0f7ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin: 15px 0;
+            font-size: 0.95rem;
+        }
+        
+        .helper-text {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
 
         /* =========================================
            STRICT 1-PAGE PRINT OVERRIDES
            ========================================= */
         @media print {
-            @page { size: letter portrait; margin: 0.3in; } 
-            
+            @page { size: letter portrait; margin: 0.3in; }
+           
             * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-            
-            /* The Kill-Switch: Forces 1 Page exactly, kills the 2nd blank page */
-            html, body { 
-                background: white !important; 
-                height: 100% !important; 
-                max-height: 10.4in !important; 
-                margin: 0 !important; 
-                padding: 0 !important; 
-                overflow: hidden !important; 
+           
+            html, body {
+                background: white !important;
+                height: 100% !important;
+                max-height: 10.4in !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
             }
-            
+           
             .no-print, #inputSlide, #actionButtons { display: none !important; }
-            
+           
             #documentView { display: block !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
-            
+           
             #letterWrapper {
                 box-shadow: none !important; padding: 0 !important; border-radius: 0 !important;
                 width: 100% !important; max-width: 100% !important; border: none !important; margin: 0 !important;
             }
-
-            /* Tightens the text strictly for the piece of paper */
             .letter-content { font-size: 10.5pt !important; line-height: 1.35 !important; }
             p { margin-bottom: 8px !important; }
             .header { margin-bottom: 10px !important; padding-bottom: 5px !important; }
@@ -139,20 +141,22 @@
     </style>
 </head>
 <body>
-
     <div class="slide-card no-print" id="inputSlide">
         <div class="logo-preview"><img src="email-logosmall.png" alt="HMS Logo"></div>
         <h2>Pre-Approval Portal</h2>
+        <p style="text-align:center; color:#64748b; margin-top:-10px; margin-bottom:20px; font-size:0.9rem;">
+            Fill out the form below • Calculations update live • Print or save as PDF (fits on 1 page)
+        </p>
 
         <div class="input-group">
-            <label>Borrower Name</label>
+            <label>Borrower Name <span style="color:#e11d48;">*</span></label>
             <input type="text" id="custName" placeholder="e.g. John Doe">
         </div>
-
+        
         <div class="dual-input">
             <div class="input-group">
                 <label>Loan Program</label>
-                <select id="program" onchange="checkProgramDefaults()">
+                <select id="program" onchange="checkProgramDefaults(); updateLiveSummary(); saveFormState();">
                     <option value="Conventional">Conventional</option>
                     <option value="FHA">FHA</option>
                     <option value="VA">VA</option>
@@ -161,36 +165,58 @@
             </div>
             <div class="input-group">
                 <label>Signatory Officer</label>
-                <select id="signatory" onchange="saveSignatoryDefault()">
+                <select id="signatory" onchange="saveSignatoryDefault(); saveFormState();">
                     <option value="john">John Bischof</option>
                     <option value="darrell">Darrell Whitaker</option>
                 </select>
             </div>
         </div>
-
+        
         <div class="input-group">
-            <label>Purchase Price ($)</label>
-            <input type="text" id="price" inputmode="numeric" pattern="[0-9,]*" placeholder="225,000" oninput="formatCurrencyInput(this); calcDownAmount();">
+            <label>Purchase Price ($) <span style="color:#e11d48;">*</span></label>
+            <input type="text" id="price" inputmode="numeric" pattern="[0-9,]*" placeholder="225,000" 
+                   oninput="formatCurrencyInput(this); calcDownAmount(); updateLiveSummary(); saveFormState();">
         </div>
-
+        
         <div class="input-group">
             <label>Down Payment</label>
             <div class="dual-input">
-                <div><small>Amount ($)</small><input type="text" id="downAmt" inputmode="numeric" pattern="[0-9,]*" placeholder="0" oninput="formatCurrencyInput(this); calcDownPercent();"></div>
-                <div><small>Percent (%)</small><input type="number" id="downPct" inputmode="decimal" step="0.1" placeholder="0" oninput="calcDownAmount();"></div>
+                <div>
+                    <small>Amount ($)</small>
+                    <input type="text" id="downAmt" inputmode="numeric" pattern="[0-9,]*" placeholder="0" 
+                           oninput="formatCurrencyInput(this); calcDownPercent(); updateLiveSummary(); saveFormState();">
+                </div>
+                <div>
+                    <small>Percent (%)</small>
+                    <input type="number" id="downPct" inputmode="decimal" step="0.1" placeholder="0" 
+                           oninput="calcDownAmount(); updateLiveSummary(); saveFormState();">
+                </div>
             </div>
         </div>
-
-        <div class="dual-input">
-            <div class="input-group"><label>Property Address (Optional)</label><input type="text" id="propAddr" placeholder="123 Main St"></div>
-            <div class="input-group"><label>Listing Agent (Optional)</label><input type="text" id="agentName" placeholder="Agent Name"></div>
+        
+        <div id="liveSummary" style="display: none;">
+            <strong>Live Summary:</strong> 
+            <span id="liveLoan"></span> &nbsp;|&nbsp; LTV <span id="liveLTV"></span>
         </div>
-
+        
+        <div class="dual-input">
+            <div class="input-group">
+                <label>Property Address (Optional)</label>
+                <input type="text" id="propAddr" placeholder="123 Main St" oninput="saveFormState()">
+            </div>
+            <div class="input-group">
+                <label>Listing Agent (Optional)</label>
+                <input type="text" id="agentName" placeholder="Agent Name" oninput="saveFormState()">
+            </div>
+        </div>
+        
         <button onclick="generateLetter()">Generate Automated Letter</button>
+        <p class="helper-text" style="text-align:center;">* Required fields</p>
     </div>
-
+    
     <div id="documentView">
         <div id="letterWrapper">
+            <!-- Letter content remains exactly the same as your original -->
             <div class="header">
                 <img src="email-logosmall.png" alt="Home Mortgage Solutions LLC">
                 <div class="contact-info">
@@ -198,12 +224,10 @@
                     Office: (423) 555-0199 &bull; Email: <span id="headerEmail"></span>
                 </div>
             </div>
-
             <div class="letter-content">
                 <p style="text-align: right;"><strong id="dateOut"></strong></p>
                 <p>To Whom It May Concern,</p>
                 <p style="text-align: center; font-size: 11pt; margin-bottom: 10px;"><strong>RE: MORTGAGE PRE-APPROVAL FINANCING</strong></p>
-
                 <div class="re-box">
                     <div><strong>Borrower:</strong> <span id="nameOut"></span></div>
                     <div><strong>Loan Program:</strong> <span id="progOut"></span></div>
@@ -212,26 +236,18 @@
                     <div><strong>Down Payment:</strong> <span id="downOut"></span></div>
                     <div><strong>LTV Percentage:</strong> <span id="ltvOut"></span></div>
                 </div>
-
                 <p>This letter serves as formal confirmation that the borrower(s) listed above have been pre-approved for residential financing through <strong>Home Mortgage Solutions LLC</strong>.</p>
-
                 <p id="realtorLine" style="display:none; font-style: italic; background-color: #fcfcfc; padding: 5px; border: 1px dashed #cbd5e0; margin-bottom: 8px;"></p>
-
                 <p>Please note that final loan approval remains strictly subject to the receipt and underwriting satisfaction of a fully executed purchase contract and all applicable addendums, an acceptable property appraisal report, a clear title report, satisfactory property insurance policies, and the timely submission of all remaining background documentation requested for final underwriting sign-off.</p>
-
                 <p>This Pre‐Approval does not constitute a final loan approval, a commitment to lend or a guarantee of interest rate, and should be considered a preliminary assessment of the applicant's ability to obtain a mortgage loan based on the current underwriting guidelines in place for the loan program requested.</p>
-                
+               
                 <p>Once a purchase contract has been fully executed we will submit the collected documentation necessary to obtain loan approval from underwriting.</p>
-                
+               
                 <p>I am privileged to assist you with your home financing needs. I realize there are many lenders to choose from and I appreciate you have selected my company, and you will receive unparallel customer service throughout your process and after. If you should have any questions, please feel free to contact me at <span id="contactCallout"></span>. I look forward to working with you.</p>
-
                 <p>This certificate remains an active validation of financial capability for a period of 90 days, officially expiring on <strong id="expireOut"></strong>.</p>
-
                 <div class="sig-block">
                     Sincerely,<br>
-                    
                     <div id="sigContainer" style="margin: 10px 0;"></div>
-                    
                     <div style="width: 240px; border-top: 1px solid #000; padding-top: 4px;">
                         <strong id="sigName"></strong><br>
                         Mortgage Broker / Owner<br>
@@ -239,42 +255,113 @@
                         <span id="sigEmail"></span>
                     </div>
                 </div>
-
                 <div class="cert-id" id="validationIdOut"></div>
             </div>
         </div>
-
+        
         <div class="action-btn-container no-print" id="actionButtons">
             <button style="background: #28a745;" onclick="window.print()">🖨️ Print / Save as PDF</button>
             <button style="background: #007bff;" onclick="copyToClipboard()">📋 Copy Text Summary</button>
-            <button style="background: #6c757d;" onclick="resetPortal()">🔄 Reset Portal</button>
+            <button style="background: #17a2b8;" onclick="editLetter()">✏️ Edit / Change Details</button>
+            <button style="background: #6c757d;" onclick="resetPortal()">🔄 Start New Letter</button>
         </div>
     </div>
-
+    
     <script>
-        window.onload = function() {
-            const savedOfficer = localStorage.getItem('hmsDefaultSignatory');
-            if (savedOfficer) {
-                document.getElementById('signatory').value = savedOfficer;
+        // Officer configuration - easy to extend later
+        const officers = {
+            john: {
+                name: "John Bischof",
+                email: "john@hmsloan.com",
+                phone: "(423) 505-9811",
+                sigType: "image"
+            },
+            darrell: {
+                name: "Darrell Whitaker",
+                email: "darrell@hmsloan.com",
+                phone: "(423) 505-1376",
+                sigType: "text"
             }
         };
 
+        window.onload = function() {
+            loadFormState();
+            
+            // Restore signatory default if no saved form
+            const savedOfficer = localStorage.getItem('hmsDefaultSignatory');
+            if (savedOfficer && !localStorage.getItem('hmsFormState')) {
+                document.getElementById('signatory').value = savedOfficer;
+            }
+            
+            // Attach live save listeners
+            attachPersistenceListeners();
+        };
+        
+        function attachPersistenceListeners() {
+            const fields = ['custName', 'program', 'signatory', 'price', 'downAmt', 'downPct', 'propAddr', 'agentName'];
+            fields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', saveFormState);
+                    el.addEventListener('change', saveFormState);
+                }
+            });
+        }
+        
+        function saveFormState() {
+            const state = {
+                custName: document.getElementById('custName').value,
+                program: document.getElementById('program').value,
+                signatory: document.getElementById('signatory').value,
+                price: document.getElementById('price').value,
+                downAmt: document.getElementById('downAmt').value,
+                downPct: document.getElementById('downPct').value,
+                propAddr: document.getElementById('propAddr').value,
+                agentName: document.getElementById('agentName').value
+            };
+            localStorage.setItem('hmsFormState', JSON.stringify(state));
+        }
+        
+        function loadFormState() {
+            const saved = localStorage.getItem('hmsFormState');
+            if (!saved) return;
+            
+            try {
+                const state = JSON.parse(saved);
+                if (state.custName) document.getElementById('custName').value = state.custName;
+                if (state.program) document.getElementById('program').value = state.program;
+                if (state.signatory) document.getElementById('signatory').value = state.signatory;
+                if (state.price) document.getElementById('price').value = state.price;
+                if (state.downAmt) document.getElementById('downAmt').value = state.downAmt;
+                if (state.downPct) document.getElementById('downPct').value = state.downPct;
+                if (state.propAddr) document.getElementById('propAddr').value = state.propAddr;
+                if (state.agentName) document.getElementById('agentName').value = state.agentName;
+                
+                // Show live summary if we have price data
+                if (state.price) {
+                    updateLiveSummary();
+                }
+            } catch (e) {
+                console.warn('Could not restore form state');
+            }
+        }
+        
         function saveSignatoryDefault() {
             const currentOfficer = document.getElementById('signatory').value;
             localStorage.setItem('hmsDefaultSignatory', currentOfficer);
         }
-
+        
         function formatCurrencyInput(input) {
             let value = input.value.replace(/,/g, '');
             if (!isNaN(value) && value !== '') {
                 input.value = parseFloat(value).toLocaleString('en-US');
             }
         }
-
+        
         function getRawValue(id) {
             return parseFloat(document.getElementById(id).value.replace(/,/g, '')) || 0;
         }
-
+        
         function setFormattedValue(id, num) {
             if (num > 0) {
                 document.getElementById(id).value = Math.round(num).toLocaleString('en-US');
@@ -282,18 +369,19 @@
                 document.getElementById(id).value = '';
             }
         }
-
+        
         function checkProgramDefaults() {
             const prog = document.getElementById('program').value;
-            if (prog === "VA" || prog === "USDA") { 
-                document.getElementById('downPct').value = 0; 
-                calcDownAmount(); 
-            } else if (prog === "FHA") { 
-                document.getElementById('downPct').value = 3.5; 
-                calcDownAmount(); 
+            if (prog === "VA" || prog === "USDA") {
+                document.getElementById('downPct').value = 0;
+                calcDownAmount();
+            } else if (prog === "FHA") {
+                document.getElementById('downPct').value = 3.5;
+                calcDownAmount();
             }
+            updateLiveSummary();
         }
-
+        
         function calcDownAmount() {
             const price = getRawValue('price');
             const percent = parseFloat(document.getElementById('downPct').value) || 0;
@@ -301,94 +389,120 @@
                 const amount = price * (percent / 100);
                 setFormattedValue('downAmt', amount);
             }
+            updateLiveSummary();
         }
-
+        
         function calcDownPercent() {
             const price = getRawValue('price');
             const amount = getRawValue('downAmt');
             if (price && amount) {
                 document.getElementById('downPct').value = ((amount / price) * 100).toFixed(2);
             }
+            updateLiveSummary();
         }
-
+        
+        function updateLiveSummary() {
+            const price = getRawValue('price');
+            const downAmt = getRawValue('downAmt');
+            const loanAmt = price - downAmt;
+            const ltv = price > 0 ? ((loanAmt / price) * 100).toFixed(2) : 0;
+            
+            const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+            
+            const summaryEl = document.getElementById('liveSummary');
+            if (price > 0) {
+                document.getElementById('liveLoan').innerText = fmt.format(loanAmt);
+                document.getElementById('liveLTV').innerText = ltv + '%';
+                summaryEl.style.display = 'block';
+            } else {
+                summaryEl.style.display = 'none';
+            }
+        }
+        
         function resetPortal() {
-            location.reload();
+            if (confirm('Start a completely new letter?')) {
+                localStorage.removeItem('hmsFormState');
+                location.reload();
+            }
         }
-
+        
+        function editLetter() {
+            document.getElementById('documentView').style.display = 'none';
+            document.getElementById('inputSlide').style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+        
         function generateLetter() {
-            const name = document.getElementById('custName').value;
+            const name = document.getElementById('custName').value.trim();
             const price = getRawValue('price');
             const downAmt = getRawValue('downAmt');
             const downPct = document.getElementById('downPct').value || "0";
             const prog = document.getElementById('program').value;
-            const sig = document.getElementById('signatory').value;
-            const prop = document.getElementById('propAddr').value;
-            const agent = document.getElementById('agentName').value;
-
-            if(!name || !price) { alert("Borrower Name and Purchase Price are mandatory."); return; }
-
+            const sigKey = document.getElementById('signatory').value;
+            const prop = document.getElementById('propAddr').value.trim();
+            const agent = document.getElementById('agentName').value.trim();
+            
+            if (!name || !price) {
+                alert("Borrower Name and Purchase Price are required.");
+                return;
+            }
+            
+            const officer = officers[sigKey] || officers.john;
             const loanAmt = price - downAmt;
             const ltv = ((loanAmt / price) * 100).toFixed(2);
             const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
-
+            
             const today = new Date();
             const expiry = new Date();
             expiry.setDate(today.getDate() + 90);
-
+            
             const randomHex = Math.floor(Math.random()*16777215).toString(16).toUpperCase().substring(0, 4);
             const stampId = `VALIDATION ID: HMS-${today.getFullYear()}${(today.getMonth()+1).toString().padStart(2,'0')}${today.getDate().toString().padStart(2,'0')}-${randomHex}`;
+            
+            // Populate letter
             document.getElementById('validationIdOut').innerText = stampId;
-
             document.getElementById('dateOut').innerText = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
             document.getElementById('expireOut').innerText = expiry.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-
             document.getElementById('nameOut').innerText = name;
             document.getElementById('progOut').innerText = prog;
             document.getElementById('priceOut').innerText = fmt.format(price);
             document.getElementById('loanOut').innerText = fmt.format(loanAmt);
             document.getElementById('downOut').innerText = fmt.format(downAmt) + " (" + downPct + "%)";
             document.getElementById('ltvOut').innerText = ltv + "%";
-
-            let email = "";
-            let fullName = "";
-            let phoneText = "";
-            let sigContainer = document.getElementById('sigContainer');
-
-            if (sig === "john") {
-                email = "john@hmsloan.com";
-                fullName = "John Bischof";
-                phoneText = "John Bischof at (423) 505-9811";
-                // Fixed: Image simply rests in the document block. No absolute positioning.
-                sigContainer.innerHTML = `<img src="john-sig.png" alt="John Bischof Signature" style="height: 50px; width: auto; max-width: 220px; display: block; margin: 0;">`;
+            
+            // Officer details
+            document.getElementById('headerEmail').innerText = officer.email;
+            document.getElementById('sigName').innerText = officer.name;
+            document.getElementById('sigEmail').innerText = officer.email;
+            document.getElementById('contactCallout').innerText = `${officer.name} at ${officer.phone}`;
+            
+            // Signature
+            const sigContainer = document.getElementById('sigContainer');
+            if (officer.sigType === "image") {
+                sigContainer.innerHTML = `<img src="john-sig.png" alt="${officer.name} Signature" style="height: 50px; width: auto; max-width: 220px; display: block; margin: 0;">`;
             } else {
-                email = "darrell@hmsloan.com";
-                fullName = "Darrell Whitaker";
-                phoneText = "Darrell Whitaker at (423) 505-1376";
-                // Text fallback
-                sigContainer.innerHTML = `<div style="font-family: 'Caveat', cursive; font-size: 34pt; color: #0d233a; line-height: 50px; transform: rotate(-2.5deg);">${fullName}</div>`;
+                sigContainer.innerHTML = `<div style="font-family: 'Caveat', cursive; font-size: 34pt; color: #0d233a; line-height: 50px; transform: rotate(-2.5deg);">${officer.name}</div>`;
             }
-
-            document.getElementById('headerEmail').innerText = email;
-            document.getElementById('sigName').innerText = fullName;
-            document.getElementById('sigEmail').innerText = email;
-            document.getElementById('contactCallout').innerText = phoneText;
-
+            
+            // Special notice
+            const realtorLine = document.getElementById('realtorLine');
             if (prop || agent) {
-                let text = "Special Notice: This pre-approval packet has been intentionally tailored";
-                if(prop) text += ` for the property located at ${prop}`;
-                if(agent) text += ` in coordination with listing representative ${agent}`;
+                let text = "Special Notice: This pre-approval has been tailored";
+                if (prop) text += ` for the property at ${prop}`;
+                if (agent) text += ` in coordination with listing agent ${agent}`;
                 text += ".";
-                document.getElementById('realtorLine').innerText = text;
-                document.getElementById('realtorLine').style.display = "block";
+                realtorLine.innerText = text;
+                realtorLine.style.display = "block";
             } else {
-                document.getElementById('realtorLine').style.display = "none";
+                realtorLine.style.display = "none";
             }
-
+            
+            // Switch views
             document.getElementById('inputSlide').style.display = 'none';
             document.getElementById('documentView').style.display = 'flex';
-            window.scrollTo(0,0);
+            window.scrollTo(0, 0);
         }
-
+        
         function copyToClipboard() {
             const borrower = document.getElementById('nameOut').innerText;
             const program = document.getElementById('progOut').innerText;
@@ -397,9 +511,8 @@
             const downPmt = document.getElementById('downOut').innerText;
             const expiration = document.getElementById('expireOut').innerText;
             const validId = document.getElementById('validationIdOut').innerText;
-
-            const clipboardText = `HMS Pre-Approval Summary Data:\n` +
-                                 `-----------------------------------\n` +
+            
+            const clipboardText = `HMS Pre-Approval Summary\n` +
                                  `Borrower: ${borrower}\n` +
                                  `Loan Program: ${program}\n` +
                                  `Purchase Price: ${price}\n` +
@@ -407,11 +520,11 @@
                                  `Down Payment: ${downPmt}\n` +
                                  `Valid Until: ${expiration}\n` +
                                  `${validId}`;
-
+            
             navigator.clipboard.writeText(clipboardText).then(() => {
-                alert("Pre-approval profile quick summary copied to clipboard!");
+                alert("Pre-approval summary copied to clipboard!");
             }).catch(err => {
-                alert("Unable to copy summary automatically: ", err);
+                alert("Unable to copy automatically. You can manually select and copy the text from the letter.");
             });
         }
     </script>
