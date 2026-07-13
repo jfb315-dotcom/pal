@@ -535,14 +535,24 @@
             document.getElementById('sigEmail').innerText = officer.email;
             document.getElementById('contactCallout').innerText = `${officer.name} at ${officer.phone}`;
             
-            // Signature
-            const sigContainer = document.getElementById('sigContainer');
-            if (officer.sigType === "image") {
-                sigContainer.innerHTML = `<img src="john-sig.png" alt="${officer.name} Signature" style="height: 48px; width: auto; max-width: 210px; display: block; margin: 0;">`;
-            } else {
-                sigContainer.innerHTML = `<div style="font-family: 'Caveat', cursive; font-size: 32pt; color: #0d233a; line-height: 48px; transform: rotate(-2.5deg);">${officer.name}</div>`;
-            }
-            
+// Signature
+const sigContainer = document.getElementById('sigContainer');
+if (officer.sigType === "image") {
+    sigContainer.innerHTML = `<img src="john-sig.png" alt="${officer.name} Signature" style="height: 48px; width: auto; max-width: 210px; display: block; margin: 0;">`;
+} else {
+    // More cursive / handwritten look for Darrell Whitaker
+    sigContainer.innerHTML = `
+        <div style="font-family: 'Caveat', cursive; 
+                    font-size: 42pt; 
+                    font-weight: 700; 
+                    color: #0d233a; 
+                    line-height: 36px; 
+                    transform: rotate(-5deg); 
+                    letter-spacing: -2.5px;
+                    text-shadow: 1px 2px 4px rgba(0,0,0,0.12);">
+            ${officer.name}
+        </div>`;
+}
             // Special notice - only show if there's a real address (not just "TBD, TN")
             const realtorLine = document.getElementById('realtorLine');
             const isDefaultAddress = prop.toUpperCase() === "TBD, TN" || prop === "";
