@@ -5,161 +5,114 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HMS Pre-Approval Portal</title>
    
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
    
     <style>
-        :root {
-            --primary: #005a9c;
-            --bg: #f0f2f5;
-            --text: #1a202c;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            padding: 15px;
-        }
-        .slide-card {
-            background: white;
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 550px;
-            margin: 10px auto;
-            box-sizing: border-box;
-        }
+        :root { --primary: #005a9c; --bg: #f0f2f5; --text: #1a202c; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 15px; }
+        .slide-card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 550px; margin: 10px auto; box-sizing: border-box; }
         .logo-preview { text-align: center; margin-bottom: 15px; }
         .logo-preview img { width: 110px; height: auto; }
-       
         h2 { text-align: center; margin-bottom: 18px; color: var(--primary); }
         .input-group { margin-bottom: 15px; }
         label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; color: #4a5568; }
         input, select { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
         input:focus { border-color: var(--primary); outline: none; }
         .dual-input { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-       
         button { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.15rem; font-weight: bold; cursor: pointer; margin-top: 15px; touch-action: manipulation; }
         button:hover { filter: brightness(1.1); }
-       
-        #documentView {
-            display: none;
-            width: 100%;
-            max-width: 600px;
-            flex-direction: column;
-            align-items: center;
-            padding-bottom: 40px;
-            margin: 0 auto;
-        }
-        #letterWrapper {
-            background: white;
-            width: 100%;
-            box-sizing: border-box;
-            padding: 25px 20px;
-            margin: 0 auto;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            border-radius: 12px;
-        }
+        #documentView { display: none; width: 100%; max-width: 600px; flex-direction: column; align-items: center; padding-bottom: 40px; margin: 0 auto; }
+        #letterWrapper { background: white; width: 100%; box-sizing: border-box; padding: 25px 20px; margin: 0 auto; box-shadow: 0 5px 20px rgba(0,0,0,0.08); border-radius: 12px; }
         .letter-content { font-family: 'Times New Roman', Times, serif; font-size: 11.5pt; line-height: 1.45; text-align: justify; color: #000; }
-       
         .header { text-align: center; border-bottom: 2px solid var(--primary); margin-bottom: 18px; padding-bottom: 8px; }
         .header img { width: 115px; max-width: 115px; height: auto; display: inline-block; }
         .contact-info { font-size: 9.5pt; color: #444; margin-top: 4px; }
-       
         .re-box { background: #f8f9fa; padding: 11px 12px; border-left: 4px solid var(--primary); margin: 14px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; font-size: 10.3pt; }
-       
         .sig-block { margin-top: 22px; page-break-inside: avoid; }
-       
         .cert-id { font-size: 8pt; color: #a0aec0; text-align: center; margin-top: 22px; font-family: monospace; width: 100%; }
         p { margin-top: 0; margin-bottom: 11px; }
-        
-        .action-btn-container {
-            display: flex;
-            flex-direction: column;
-            gap: 11px;
-            margin-top: 22px;
-            width: 100%;
-        }
+        .action-btn-container { display: flex; flex-direction: column; gap: 11px; margin-top: 22px; width: 100%; }
         .action-btn-container button { margin: 0; width: 100%; }
-        
-        #liveSummary {
-            background: #f0f7ff;
-            border: 1px solid #bfdbfe;
-            border-radius: 10px;
-            padding: 13px 15px;
-            margin: 14px 0;
-            font-size: 0.95rem;
+        #liveSummary { background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 13px 15px; margin: 14px 0; font-size: 0.95rem; }
+        .helper-text { font-size: 0.8rem; color: #64748b; margin-top: 4px; }
+
+        /* Save / Load Buttons */
+        .save-load-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
         }
-        
-        .helper-text {
-            font-size: 0.8rem;
-            color: #64748b;
-            margin-top: 4px;
+        .save-load-buttons button {
+            flex: 1;
+            padding: 14px;
+            font-size: 1rem;
+            margin-top: 0;
+        }
+        .btn-save { background: #16a34a; }
+        .btn-load { background: #7c3aed; }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 420px;
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .saved-profile {
+            padding: 14px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .saved-profile:hover { background: #f8fafc; }
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
         }
 
-        /* =========================================
-           AGGRESSIVE 1-PAGE PRINT OVERRIDES (iPhone optimized)
-           ========================================= */
         @media print {
-            @page { 
-                size: letter portrait; 
-                margin: 0.25in; 
-            }
-           
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-           
-            html, body {
-                background: white !important;
-                height: 100% !important;
-                max-height: 10.3in !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                overflow: hidden !important;
-            }
-           
+            @page { size: letter portrait; margin: 0.25in; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            html, body { background: white !important; height: 100% !important; max-height: 10.3in !important; margin: 0 !important; padding: 0 !important; overflow: hidden !important; }
             .no-print, #inputSlide, #actionButtons { display: none !important; }
-           
             #documentView { display: block !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
-           
-            #letterWrapper {
-                box-shadow: none !important; 
-                padding: 0 !important; 
-                border-radius: 0 !important;
-                width: 100% !important; 
-                max-width: 100% !important; 
-                border: none !important; 
-                margin: 0 !important;
-            }
-            
-            .letter-content { 
-                font-size: 10pt !important; 
-                line-height: 1.28 !important; 
-            }
+            #letterWrapper { box-shadow: none !important; padding: 0 !important; border-radius: 0 !important; width: 100% !important; max-width: 100% !important; border: none !important; margin: 0 !important; }
+            .letter-content { font-size: 10pt !important; line-height: 1.28 !important; }
             p { margin-bottom: 7px !important; }
-            .header { 
-                margin-bottom: 8px !important; 
-                padding-bottom: 4px !important; 
-            }
+            .header { margin-bottom: 8px !important; padding-bottom: 4px !important; }
             .header img { width: 95px !important; max-width: 95px !important; }
-            .re-box { 
-                margin: 8px 0 !important; 
-                padding: 7px 10px !important; 
-                font-size: 9.2pt !important; 
-            }
+            .re-box { margin: 8px 0 !important; padding: 7px 10px !important; font-size: 9.2pt !important; }
             .sig-block { margin-top: 12px !important; }
             .cert-id { margin-top: 12px !important; font-size: 7pt !important; }
         }
     </style>
 </head>
 <body>
+
     <div class="slide-card no-print" id="inputSlide">
         <div class="logo-preview"><img src="email-logosmall.png" alt="HMS Logo"></div>
         <h2>Pre-Approval Portal</h2>
@@ -229,11 +182,18 @@
                 <input type="text" id="agentName" placeholder="Agent Name" oninput="saveFormState()">
             </div>
         </div>
-        
-        <button onclick="generateLetter()">Generate Automated Letter</button>
-        <p class="helper-text" style="text-align:center;">* Required fields &nbsp;•&nbsp; iPhone: Use 100% scale in print dialog</p>
+
+        <!-- NEW: Save & Load Buttons -->
+        <div class="save-load-buttons">
+            <button class="btn-save" onclick="saveCustomerProfile()">💾 Save Profile</button>
+            <button class="btn-load" onclick="showLoadModal()">📂 Load Profile</button>
+        </div>
+
+        <button onclick="generateLetter()" style="margin-top: 20px;">Generate Automated Letter</button>
+        <p class="helper-text" style="text-align:center;">* Required fields</p>
     </div>
-    
+
+    <!-- Document View (same as before) -->
     <div id="documentView">
         <div id="letterWrapper">
             <div class="header">
@@ -259,9 +219,7 @@
                 <p id="realtorLine" style="display:none; font-style: italic; background-color: #fcfcfc; padding: 5px; border: 1px dashed #cbd5e0; margin-bottom: 7px;"></p>
                 <p>Please note that final loan approval remains strictly subject to the receipt and underwriting satisfaction of a fully executed purchase contract and all applicable addendums, an acceptable property appraisal report, a clear title report, satisfactory property insurance policies, and the timely submission of all remaining background documentation requested for final underwriting sign-off.</p>
                 <p>This Pre‐Approval does not constitute a final loan approval, a commitment to lend or a guarantee of interest rate, and should be considered a preliminary assessment of the applicant's ability to obtain a mortgage loan based on the current underwriting guidelines in place for the loan program requested.</p>
-               
                 <p>Once a purchase contract has been fully executed we will submit the collected documentation necessary to obtain loan approval from underwriting.</p>
-               
                 <p>I am privileged to assist you with your home financing needs. I realize there are many lenders to choose from and I appreciate you have selected my company, and you will receive unparallel customer service throughout your process and after. If you should have any questions, please feel free to contact me at <span id="contactCallout"></span>. I look forward to working with you.</p>
                 <p>This certificate remains an active validation of financial capability for a period of 90 days, officially expiring on <strong id="expireOut"></strong>.</p>
                 <div class="sig-block">
@@ -285,25 +243,22 @@
             <button style="background: #6c757d;" onclick="resetPortal()">🔄 Start New Letter</button>
         </div>
     </div>
-    
+
+    <!-- Load Profile Modal -->
+    <div id="loadModal" class="modal" onclick="if (event.target.id === 'loadModal') closeLoadModal()">
+        <div class="modal-content" onclick="event.stopImmediatePropagation()">
+            <h3 style="margin-top:0;">Saved Customer Profiles</h3>
+            <div id="savedProfilesList"></div>
+            <button onclick="closeLoadModal()" style="margin-top:15px; background:#64748b;">Close</button>
+        </div>
+    </div>
+
     <script>
-        // Officer configuration
         const officers = {
-            john: {
-                name: "John Bischof",
-                email: "john@hmsloan.com",
-                phone: "(423) 505-9811",
-                sigType: "image"
-            },
-            darrell: {
-                name: "Darrell Whitaker",
-                email: "darrell@hmsloan.com",
-                phone: "(423) 505-1376",
-                sigType: "text"
-            }
+            john: { name: "John Bischof", email: "john@hmsloan.com", phone: "(423) 505-9811", sigType: "image" },
+            darrell: { name: "Darrell Whitaker", email: "darrell@hmsloan.com", phone: "(423) 505-1376", sigType: "text" }
         };
 
-        // Helper: Convert to Title Case (John Doe)
         function toTitleCase(str) {
             if (!str) return '';
             return str.toLowerCase().replace(/\b\w/g, char => char.toUpperCase());
@@ -311,25 +266,21 @@
 
         window.onload = function() {
             loadFormState();
-            
             const savedOfficer = localStorage.getItem('hmsDefaultSignatory');
             if (savedOfficer && !localStorage.getItem('hmsFormState')) {
                 document.getElementById('signatory').value = savedOfficer;
             }
-            
             attachPersistenceListeners();
             attachAutoFormatListeners();
-            
-            // Set default "TBD, TN" only if field is empty after loading
+
             const propField = document.getElementById('propAddr');
             if (!propField.value.trim()) {
                 propField.value = "TBD, TN";
                 saveFormState();
             }
         };
-        
+
         function attachAutoFormatListeners() {
-            // Auto title case for Borrower Name
             const custName = document.getElementById('custName');
             custName.addEventListener('blur', function() {
                 if (this.value.trim()) {
@@ -337,8 +288,6 @@
                     saveFormState();
                 }
             });
-            
-            // Auto title case for Listing Agent
             const agentName = document.getElementById('agentName');
             agentName.addEventListener('blur', function() {
                 if (this.value.trim()) {
@@ -347,7 +296,7 @@
                 }
             });
         }
-        
+
         function attachPersistenceListeners() {
             const fields = ['custName', 'program', 'signatory', 'price', 'downAmt', 'downPct', 'propAddr', 'agentName'];
             fields.forEach(id => {
@@ -358,7 +307,7 @@
                 }
             });
         }
-        
+
         function saveFormState() {
             const state = {
                 custName: document.getElementById('custName').value,
@@ -372,11 +321,10 @@
             };
             localStorage.setItem('hmsFormState', JSON.stringify(state));
         }
-        
+
         function loadFormState() {
             const saved = localStorage.getItem('hmsFormState');
             if (!saved) return;
-            
             try {
                 const state = JSON.parse(saved);
                 if (state.custName) document.getElementById('custName').value = state.custName;
@@ -387,31 +335,26 @@
                 if (state.downPct) document.getElementById('downPct').value = state.downPct;
                 if (state.propAddr) document.getElementById('propAddr').value = state.propAddr;
                 if (state.agentName) document.getElementById('agentName').value = state.agentName;
-                
-                if (state.price) {
-                    updateLiveSummary();
-                }
-            } catch (e) {
-                console.warn('Could not restore form state');
-            }
+                if (state.price) updateLiveSummary();
+            } catch (e) {}
         }
-        
+
         function saveSignatoryDefault() {
             const currentOfficer = document.getElementById('signatory').value;
             localStorage.setItem('hmsDefaultSignatory', currentOfficer);
         }
-        
+
         function formatCurrencyInput(input) {
             let value = input.value.replace(/,/g, '');
             if (!isNaN(value) && value !== '') {
                 input.value = parseFloat(value).toLocaleString('en-US');
             }
         }
-        
+
         function getRawValue(id) {
             return parseFloat(document.getElementById(id).value.replace(/,/g, '')) || 0;
         }
-        
+
         function setFormattedValue(id, num) {
             if (num > 0) {
                 document.getElementById(id).value = Math.round(num).toLocaleString('en-US');
@@ -419,7 +362,7 @@
                 document.getElementById(id).value = '';
             }
         }
-        
+
         function checkProgramDefaults() {
             const prog = document.getElementById('program').value;
             if (prog === "VA" || prog === "USDA") {
@@ -431,7 +374,7 @@
             }
             updateLiveSummary();
         }
-        
+
         function calcDownAmount() {
             const price = getRawValue('price');
             const percent = parseFloat(document.getElementById('downPct').value) || 0;
@@ -441,7 +384,7 @@
             }
             updateLiveSummary();
         }
-        
+
         function calcDownPercent() {
             const price = getRawValue('price');
             const amount = getRawValue('downAmt');
@@ -450,15 +393,13 @@
             }
             updateLiveSummary();
         }
-        
+
         function updateLiveSummary() {
             const price = getRawValue('price');
             const downAmt = getRawValue('downAmt');
             const loanAmt = price - downAmt;
             const ltv = price > 0 ? ((loanAmt / price) * 100).toFixed(2) : 0;
-            
             const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
-            
             const summaryEl = document.getElementById('liveSummary');
             if (price > 0) {
                 document.getElementById('liveLoan').innerText = fmt.format(loanAmt);
@@ -468,57 +409,146 @@
                 summaryEl.style.display = 'none';
             }
         }
-        
+
         function resetPortal() {
             if (confirm('Start a completely new letter?')) {
                 localStorage.removeItem('hmsFormState');
                 location.reload();
             }
         }
-        
+
         function editLetter() {
             document.getElementById('documentView').style.display = 'none';
             document.getElementById('inputSlide').style.display = 'block';
             window.scrollTo(0, 0);
         }
-        
+
+        // ==================== SAVE / LOAD CUSTOMER PROFILES ====================
+
+        function saveCustomerProfile() {
+            const name = document.getElementById('custName').value.trim();
+            if (!name) {
+                alert("Please enter a Borrower Name before saving.");
+                return;
+            }
+
+            const profile = {
+                borrowerName: name,
+                program: document.getElementById('program').value,
+                price: document.getElementById('price').value,
+                downAmt: document.getElementById('downAmt').value,
+                downPct: document.getElementById('downPct').value,
+                propAddr: document.getElementById('propAddr').value,
+                agentName: document.getElementById('agentName').value,
+                signatory: document.getElementById('signatory').value,
+                savedDate: new Date().toISOString().split('T')[0]
+            };
+
+            let savedProfiles = JSON.parse(localStorage.getItem('hmsSavedProfiles')) || [];
+
+            // Remove old version with same borrower name
+            savedProfiles = savedProfiles.filter(p => p.borrowerName.toLowerCase() !== name.toLowerCase());
+
+            savedProfiles.unshift(profile);
+            localStorage.setItem('hmsSavedProfiles', JSON.stringify(savedProfiles));
+            alert(`Profile for "${name}" has been saved!`);
+        }
+
+        function showLoadModal() {
+            const modal = document.getElementById('loadModal');
+            const listContainer = document.getElementById('savedProfilesList');
+            listContainer.innerHTML = '';
+
+            let savedProfiles = JSON.parse(localStorage.getItem('hmsSavedProfiles')) || [];
+
+            if (savedProfiles.length === 0) {
+                listContainer.innerHTML = `<p style="color:#64748b; text-align:center;">No saved profiles yet.</p>`;
+            } else {
+                savedProfiles.forEach((profile, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'saved-profile';
+                    div.innerHTML = `
+                        <div class="profile-header">
+                            <div>
+                                <strong>${profile.borrowerName}</strong><br>
+                                <small style="color:#64748b;">Saved: ${profile.savedDate}</small>
+                            </div>
+                            <button class="delete-btn" onclick="deleteProfile(${index}, event)">Delete</button>
+                        </div>
+                    `;
+                    div.onclick = () => loadProfile(profile);
+                    listContainer.appendChild(div);
+                });
+            }
+            modal.style.display = 'flex';
+        }
+
+        function loadProfile(profile) {
+            document.getElementById('custName').value = profile.borrowerName || '';
+            document.getElementById('program').value = profile.program || 'Conventional';
+            document.getElementById('price').value = profile.price || '';
+            document.getElementById('downAmt').value = profile.downAmt || '';
+            document.getElementById('downPct').value = profile.downPct || '';
+            document.getElementById('propAddr').value = profile.propAddr || 'TBD, TN';
+            document.getElementById('agentName').value = profile.agentName || '';
+            document.getElementById('signatory').value = profile.signatory || 'john';
+
+            if (profile.price) updateLiveSummary();
+            closeLoadModal();
+            alert(`Loaded profile for ${profile.borrowerName}`);
+        }
+
+        function deleteProfile(index, event) {
+            event.stopImmediatePropagation();
+            if (!confirm("Delete this saved profile?")) return;
+
+            let savedProfiles = JSON.parse(localStorage.getItem('hmsSavedProfiles')) || [];
+            savedProfiles.splice(index, 1);
+            localStorage.setItem('hmsSavedProfiles', JSON.stringify(savedProfiles));
+            showLoadModal();
+        }
+
+        function closeLoadModal() {
+            document.getElementById('loadModal').style.display = 'none';
+        }
+
+        // ==================== END SAVE/LOAD ====================
+
         function generateLetter() {
-            // Apply auto title case
             const nameInput = document.getElementById('custName');
             const agentInput = document.getElementById('agentName');
-            
+
             const name = toTitleCase(nameInput.value.trim());
             const agent = toTitleCase(agentInput.value.trim());
-            
+
             nameInput.value = name;
             agentInput.value = agent;
             saveFormState();
-            
+
             const prop = document.getElementById('propAddr').value.trim();
             const price = getRawValue('price');
             const downAmt = getRawValue('downAmt');
             const downPct = document.getElementById('downPct').value || "0";
             const prog = document.getElementById('program').value;
             const sigKey = document.getElementById('signatory').value;
-            
+
             if (!name || !price) {
                 alert("Borrower Name and Purchase Price are required.");
                 return;
             }
-            
+
             const officer = officers[sigKey] || officers.john;
             const loanAmt = price - downAmt;
             const ltv = ((loanAmt / price) * 100).toFixed(2);
             const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
-            
+
             const today = new Date();
             const expiry = new Date();
             expiry.setDate(today.getDate() + 90);
-            
+
             const randomHex = Math.floor(Math.random()*16777215).toString(16).toUpperCase().substring(0, 4);
             const stampId = `VALIDATION ID: HMS-${today.getFullYear()}${(today.getMonth()+1).toString().padStart(2,'0')}${today.getDate().toString().padStart(2,'0')}-${randomHex}`;
-            
-            // Populate letter
+
             document.getElementById('validationIdOut').innerText = stampId;
             document.getElementById('dateOut').innerText = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
             document.getElementById('expireOut').innerText = expiry.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -528,35 +558,32 @@
             document.getElementById('loanOut').innerText = fmt.format(loanAmt);
             document.getElementById('downOut').innerText = fmt.format(downAmt) + " (" + downPct + "%)";
             document.getElementById('ltvOut').innerText = ltv + "%";
-            
-            // Officer details
+
             document.getElementById('headerEmail').innerText = officer.email;
             document.getElementById('sigName').innerText = officer.name;
             document.getElementById('sigEmail').innerText = officer.email;
             document.getElementById('contactCallout').innerText = `${officer.name} at ${officer.phone}`;
-            
-// Signature
-const sigContainer = document.getElementById('sigContainer');
-if (officer.sigType === "image") {
-    sigContainer.innerHTML = `<img src="john-sig.png" alt="${officer.name} Signature" style="height: 48px; width: auto; max-width: 210px; display: block; margin: 0;">`;
-} else {
-    // More cursive / handwritten look for Darrell Whitaker
-    sigContainer.innerHTML = `
-        <div style="font-family: 'Caveat', cursive; 
-                    font-size: 42pt; 
-                    font-weight: 700; 
-                    color: #0d233a; 
-                    line-height: 36px; 
-                    transform: rotate(-5deg); 
-                    letter-spacing: -2.5px;
-                    text-shadow: 1px 2px 4px rgba(0,0,0,0.12);">
-            ${officer.name}
-        </div>`;
-}
-            // Special notice - only show if there's a real address (not just "TBD, TN")
+
+            const sigContainer = document.getElementById('sigContainer');
+            if (officer.sigType === "image") {
+                sigContainer.innerHTML = `<img src="john-sig.png" alt="${officer.name} Signature" style="height: 48px; width: auto; max-width: 210px; display: block; margin: 0;">`;
+            } else {
+                sigContainer.innerHTML = `
+                    <div style="font-family: 'Caveat', cursive; 
+                                font-size: 42pt; 
+                                font-weight: 700; 
+                                color: #0d233a; 
+                                line-height: 36px; 
+                                transform: rotate(-5deg); 
+                                letter-spacing: -2.5px;
+                                text-shadow: 1px 2px 4px rgba(0,0,0,0.12);">
+                        ${officer.name}
+                    </div>`;
+            }
+
             const realtorLine = document.getElementById('realtorLine');
             const isDefaultAddress = prop.toUpperCase() === "TBD, TN" || prop === "";
-            
+
             if (!isDefaultAddress && (prop || agent)) {
                 let text = "Special Notice: This pre-approval has been tailored";
                 if (prop) text += ` for the property at ${prop}`;
@@ -567,13 +594,12 @@ if (officer.sigType === "image") {
             } else {
                 realtorLine.style.display = "none";
             }
-            
-            // Switch views
+
             document.getElementById('inputSlide').style.display = 'none';
             document.getElementById('documentView').style.display = 'flex';
             window.scrollTo(0, 0);
         }
-        
+
         function copyToClipboard() {
             const borrower = document.getElementById('nameOut').innerText;
             const program = document.getElementById('progOut').innerText;
@@ -582,7 +608,7 @@ if (officer.sigType === "image") {
             const downPmt = document.getElementById('downOut').innerText;
             const expiration = document.getElementById('expireOut').innerText;
             const validId = document.getElementById('validationIdOut').innerText;
-            
+
             const clipboardText = `HMS Pre-Approval Summary\n` +
                                  `Borrower: ${borrower}\n` +
                                  `Loan Program: ${program}\n` +
@@ -591,7 +617,7 @@ if (officer.sigType === "image") {
                                  `Down Payment: ${downPmt}\n` +
                                  `Valid Until: ${expiration}\n` +
                                  `${validId}`;
-            
+
             navigator.clipboard.writeText(clipboardText).then(() => {
                 alert("Pre-approval summary copied to clipboard!");
             }).catch(err => {
