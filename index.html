@@ -184,10 +184,12 @@
                 <div class="sig-block">
                     Sincerely,<br>
                     <div id="sigContainer" style="margin: 8px 0;"></div>
-                    <div style="width: 235px; border-top: 1px solid #000; padding-top: 3px;">
+                    <div style="width: 260px; border-top: 1px solid #000; padding-top: 4px; line-height: 1.35;">
                         <strong id="sigName"></strong><br>
-                        Mortgage Broker / Owner<br>
+                        <span id="sigTitle"></span><br>
+                        <span id="sigNmls"></span><br>
                         Home Mortgage Solutions LLC<br>
+                        NMLS# 168687<br>
                         <span id="sigEmail"></span>
                     </div>
                 </div>
@@ -226,10 +228,25 @@
         const db = firebase.firestore();
         const profilesRef = db.collection("hms_tools").doc("preapproval_profiles");
 
-        const officers = {
-            john: { name: "John Bischof", email: "john@hmsloan.com", phone: "(423) 505-9811", sigType: "image" },
-            darrell: { name: "Darrell Whitaker", email: "darrell@hmsloan.com", phone: "(423) 505-1376", sigType: "text" }
-        };
+        // ========== OFFICERS WITH CORRECT TITLES + NMLS ==========
+      const officers = {
+    john: { 
+        name: "John Bischof", 
+        email: "john@hmsloan.com", 
+        phone: "423-505-9811", 
+        title: "Mortgage Lender",
+        nmls: "NMLS# 165831",
+        sigType: "image" 
+    },
+    darrell: { 
+        name: "Darrell Whitaker", 
+        email: "darrell@hmsloan.com", 
+        phone: "423-505-1376", 
+        title: "Mortgage Lender / Owner",
+        nmls: "NMLS# 168727",
+        sigType: "text" 
+    }
+};
 
         // Auto capitalize first letter of each word
         function autoCapitalize(input) {
@@ -541,6 +558,8 @@
 
             document.getElementById('headerEmail').innerText = officer.email;
             document.getElementById('sigName').innerText = officer.name;
+            document.getElementById('sigTitle').innerText = officer.title;
+            document.getElementById('sigNmls').innerText = officer.nmls;
             document.getElementById('sigEmail').innerText = officer.email;
             document.getElementById('contactCallout').innerText = `${officer.name} at ${officer.phone}`;
 
@@ -585,7 +604,7 @@
             const clipboardText = `HMS Pre-Approval Summary\nBorrower: ${borrower}\nLoan Program: ${program}\nPurchase Price: ${price}\nLoan Amount: ${loanAmt}\nDown Payment: ${downPmt}\nValid Until: ${expiration}\n${validId}`;
 
             navigator.clipboard.writeText(clipboardText).then(() => {
-                // Quiet success - no alert
+                // Quiet success
             }).catch(() => {
                 alert("Unable to copy automatically.");
             });
