@@ -183,7 +183,7 @@
             </div>
         </div>
 
-        <!-- NEW: Save & Load Buttons -->
+        <!-- Save & Load Buttons -->
         <div class="save-load-buttons">
             <button class="btn-save" onclick="saveCustomerProfile()">💾 Save Profile</button>
             <button class="btn-load" onclick="showLoadModal()">📂 Load Profile</button>
@@ -193,7 +193,7 @@
         <p class="helper-text" style="text-align:center;">* Required fields</p>
     </div>
 
-    <!-- Document View (same as before) -->
+    <!-- Document View -->
     <div id="documentView">
         <div id="letterWrapper">
             <div class="header">
@@ -264,12 +264,15 @@
             return str.toLowerCase().replace(/\b\w/g, char => char.toUpperCase());
         }
 
+        // Always force John as default
+        function setDefaultSignatory() {
+            document.getElementById('signatory').value = "john";
+            localStorage.setItem('hmsDefaultSignatory', "john");
+        }
+
         window.onload = function() {
             loadFormState();
-            const savedOfficer = localStorage.getItem('hmsDefaultSignatory');
-            if (savedOfficer && !localStorage.getItem('hmsFormState')) {
-                document.getElementById('signatory').value = savedOfficer;
-            }
+            setDefaultSignatory(); // Force John Bischof every time the page loads
             attachPersistenceListeners();
             attachAutoFormatListeners();
 
@@ -281,15 +284,13 @@
         };
 
         function attachAutoFormatListeners() {
-            const custName = document.getElementById('custName');
-            custName.addEventListener('blur', function() {
+            document.getElementById('custName').addEventListener('blur', function() {
                 if (this.value.trim()) {
                     this.value = toTitleCase(this.value);
                     saveFormState();
                 }
             });
-            const agentName = document.getElementById('agentName');
-            agentName.addEventListener('blur', function() {
+            document.getElementById('agentName').addEventListener('blur', function() {
                 if (this.value.trim()) {
                     this.value = toTitleCase(this.value);
                     saveFormState();
@@ -298,8 +299,7 @@
         }
 
         function attachPersistenceListeners() {
-            const fields = ['custName', 'program', 'signatory', 'price', 'downAmt', 'downPct', 'propAddr', 'agentName'];
-            fields.forEach(id => {
+            ['custName', 'program', 'signatory', 'price', 'downAmt', 'downPct', 'propAddr', 'agentName'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
                     el.addEventListener('input', saveFormState);
@@ -340,8 +340,7 @@
         }
 
         function saveSignatoryDefault() {
-            const currentOfficer = document.getElementById('signatory').value;
-            localStorage.setItem('hmsDefaultSignatory', currentOfficer);
+            localStorage.setItem('hmsDefaultSignatory', document.getElementById('signatory').value);
         }
 
         function formatCurrencyInput(input) {
@@ -356,11 +355,7 @@
         }
 
         function setFormattedValue(id, num) {
-            if (num > 0) {
-                document.getElementById(id).value = Math.round(num).toLocaleString('en-US');
-            } else {
-                document.getElementById(id).value = '';
-            }
+            document.getElementById(id).value = num > 0 ? Math.round(num).toLocaleString('en-US') : '';
         }
 
         function checkProgramDefaults() {
@@ -378,10 +373,7 @@
         function calcDownAmount() {
             const price = getRawValue('price');
             const percent = parseFloat(document.getElementById('downPct').value) || 0;
-            if (price) {
-                const amount = price * (percent / 100);
-                setFormattedValue('downAmt', amount);
-            }
+            if (price) setFormattedValue('downAmt', price * (percent / 100));
             updateLiveSummary();
         }
 
@@ -410,20 +402,32 @@
             }
         }
 
+        // Reset form completely and go to top
         function resetPortal() {
             if (confirm('Start a completely new letter?')) {
                 localStorage.removeItem('hmsFormState');
-                location.reload();
+                document.getElementById('custName').value = '';
+                document.getElementById('program').value = 'Conventional';
+                document.getElementById('price').value = '';
+                document.getElementById('downAmt').value = '';
+                document.getElementById('downPct').value = '';
+                document.getElementById('propAddr').value = 'TBD, TN';
+                document.getElementById('agentName').value = '';
+                setDefaultSignatory(); // Always back to John
+                document.getElementById('liveSummary').style.display = 'none';
+                document.getElementById('documentView').style.display = 'none';
+                document.getElementById('inputSlide').style.display = 'block';
+                window.scrollTo(0, 0); // Scroll to top
             }
         }
 
         function editLetter() {
             document.getElementById('documentView').style.display = 'none';
             document.getElementById('inputSlide').style.display = 'block';
-            window.scrollTo(0, 0);
+            window.scrollTo(0, 0); // Scroll to top
         }
 
-        // ==================== SAVE / LOAD CUSTOMER PROFILES ====================
+        // ==================== SAVE / LOAD ====================
 
         function saveCustomerProfile() {
             const name = document.getElementById('custName').value.trim();
@@ -445,13 +449,25 @@
             };
 
             let savedProfiles = JSON.parse(localStorage.getItem('hmsSavedProfiles')) || [];
-
-            // Remove old version with same borrower name
+            // Remove old one with same name
             savedProfiles = savedProfiles.filter(p => p.borrowerName.toLowerCase() !== name.toLowerCase());
-
             savedProfiles.unshift(profile);
             localStorage.setItem('hmsSavedProfiles', JSON.stringify(savedProfiles));
-            alert(`Profile for "${name}" has been saved!`);
+
+            // After saving → reset form to defaults + John Bischof
+            document.getElementById('custName').value = '';
+            document.getElementById('program').value = 'Conventional';
+            document.getElementById('price').value = '';
+            document.getElementById('downAmt').value = '';
+            document.getElementById('downPct').value = '';
+            document.getElementById('propAddr').value = 'TBD, TN';
+            document.getElementById('agentName').value = '';
+            setDefaultSignatory();
+            document.getElementById('liveSummary').style.display = 'none';
+            localStorage.removeItem('hmsFormState');
+
+            alert(`Profile for "${name}" has been saved!\nForm has been reset.`);
+            window.scrollTo(0, 0);
         }
 
         function showLoadModal() {
@@ -462,7 +478,7 @@
             let savedProfiles = JSON.parse(localStorage.getItem('hmsSavedProfiles')) || [];
 
             if (savedProfiles.length === 0) {
-                listContainer.innerHTML = `<p style="color:#64748b; text-align:center;">No saved profiles yet.</p>`;
+                listContainer.innerHTML = `<p style="color:#64748b; text-align:center;">No saved profiles yet on this device.</p>`;
             } else {
                 savedProfiles.forEach((profile, index) => {
                     const div = document.createElement('div');
@@ -495,13 +511,13 @@
 
             if (profile.price) updateLiveSummary();
             closeLoadModal();
+            window.scrollTo(0, 0);
             alert(`Loaded profile for ${profile.borrowerName}`);
         }
 
         function deleteProfile(index, event) {
             event.stopImmediatePropagation();
             if (!confirm("Delete this saved profile?")) return;
-
             let savedProfiles = JSON.parse(localStorage.getItem('hmsSavedProfiles')) || [];
             savedProfiles.splice(index, 1);
             localStorage.setItem('hmsSavedProfiles', JSON.stringify(savedProfiles));
@@ -512,7 +528,7 @@
             document.getElementById('loadModal').style.display = 'none';
         }
 
-        // ==================== END SAVE/LOAD ====================
+        // ==================== GENERATE LETTER ====================
 
         function generateLetter() {
             const nameInput = document.getElementById('custName');
@@ -620,8 +636,8 @@
 
             navigator.clipboard.writeText(clipboardText).then(() => {
                 alert("Pre-approval summary copied to clipboard!");
-            }).catch(err => {
-                alert("Unable to copy automatically. You can manually select and copy the text from the letter.");
+            }).catch(() => {
+                alert("Unable to copy automatically.");
             });
         }
     </script>
