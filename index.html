@@ -6,6 +6,10 @@
     <title>HMS Pre-Approval Portal</title>
    
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
    
     <style>
         :root { --primary: #005a9c; --bg: #f0f2f5; --text: #1a202c; }
@@ -36,63 +40,17 @@
         #liveSummary { background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 13px 15px; margin: 14px 0; font-size: 0.95rem; }
         .helper-text { font-size: 0.8rem; color: #64748b; margin-top: 4px; }
 
-        /* Save / Load Buttons */
-        .save-load-buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 15px;
-        }
-        .save-load-buttons button {
-            flex: 1;
-            padding: 14px;
-            font-size: 1rem;
-            margin-top: 0;
-        }
+        .save-load-buttons { display: flex; gap: 12px; margin-top: 15px; }
+        .save-load-buttons button { flex: 1; padding: 14px; font-size: 1rem; margin-top: 0; }
         .btn-save { background: #16a34a; }
         .btn-load { background: #7c3aed; }
 
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.6);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .modal-content {
-            background: white;
-            border-radius: 16px;
-            width: 100%;
-            max-width: 420px;
-            max-height: 70vh;
-            overflow-y: auto;
-            padding: 20px;
-        }
-        .saved-profile {
-            padding: 14px 16px;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            cursor: pointer;
-        }
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: white; border-radius: 16px; width: 100%; max-width: 420px; max-height: 70vh; overflow-y: auto; padding: 20px; }
+        .saved-profile { padding: 14px 16px; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 10px; cursor: pointer; }
         .saved-profile:hover { background: #f8fafc; }
-        .profile-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .delete-btn {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            cursor: pointer;
-        }
+        .profile-header { display: flex; justify-content: space-between; align-items: center; }
+        .delete-btn { background: #ef4444; color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; }
 
         @media print {
             @page { size: letter portrait; margin: 0.25in; }
@@ -117,7 +75,7 @@
         <div class="logo-preview"><img src="email-logosmall.png" alt="HMS Logo"></div>
         <h2>Pre-Approval Portal</h2>
         <p style="text-align:center; color:#64748b; margin-top:-8px; margin-bottom:18px; font-size:0.88rem;">
-            Names auto-capitalize • Property address defaults to "TBD, TN"
+            Profiles now sync between phone & computer
         </p>
 
         <div class="input-group">
@@ -175,7 +133,7 @@
             <div class="input-group">
                 <label>Property Address (Optional)</label>
                 <input type="text" id="propAddr" placeholder="TBD, TN" oninput="saveFormState()">
-                <div class="helper-text">Defaults to TBD, TN — overwrite with full address if known</div>
+                <div class="helper-text">Defaults to TBD, TN</div>
             </div>
             <div class="input-group">
                 <label>Listing Agent (Optional)</label>
@@ -183,17 +141,16 @@
             </div>
         </div>
 
-        <!-- Save & Load Buttons -->
         <div class="save-load-buttons">
             <button class="btn-save" onclick="saveCustomerProfile()">💾 Save Profile</button>
             <button class="btn-load" onclick="showLoadModal()">📂 Load Profile</button>
         </div>
 
         <button onclick="generateLetter()" style="margin-top: 20px;">Generate Automated Letter</button>
-        <p class="helper-text" style="text-align:center;">* Required fields</p>
+        <p class="helper-text" style="text-align:center;">* Required fields • Profiles sync across devices</p>
     </div>
 
-    <!-- Document View -->
+    <!-- Document View (same as before) -->
     <div id="documentView">
         <div id="letterWrapper">
             <div class="header">
@@ -244,7 +201,7 @@
         </div>
     </div>
 
-    <!-- Load Profile Modal -->
+    <!-- Load Modal -->
     <div id="loadModal" class="modal" onclick="if (event.target.id === 'loadModal') closeLoadModal()">
         <div class="modal-content" onclick="event.stopImmediatePropagation()">
             <h3 style="margin-top:0;">Saved Customer Profiles</h3>
@@ -254,6 +211,20 @@
     </div>
 
     <script>
+        // ========== FIREBASE SETUP ==========
+        const firebaseConfig = { 
+            apiKey: "AIzaSyDnNHVSXJFkd2-Zynp1g9atJMO52CkhZ2w", 
+            authDomain: "golf-327be.firebaseapp.com", 
+            projectId: "golf-327be", 
+            storageBucket: "golf-327be.firebasestorage.app", 
+            messagingSenderId: "481710804257", 
+            appId: "1:481710804257:web:84ab3594fcc80b7affc260" 
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const profilesRef = db.collection("hms_tools").doc("preapproval_profiles");
+
+        // ========== OFFICERS ==========
         const officers = {
             john: { name: "John Bischof", email: "john@hmsloan.com", phone: "(423) 505-9811", sigType: "image" },
             darrell: { name: "Darrell Whitaker", email: "darrell@hmsloan.com", phone: "(423) 505-1376", sigType: "text" }
@@ -264,15 +235,31 @@
             return str.toLowerCase().replace(/\b\w/g, char => char.toUpperCase());
         }
 
-        // Always force John as default
         function setDefaultSignatory() {
             document.getElementById('signatory').value = "john";
             localStorage.setItem('hmsDefaultSignatory', "john");
         }
 
-        window.onload = function() {
+        // ========== LOAD PROFILES FROM CLOUD ==========
+        async function loadProfilesFromCloud() {
+            try {
+                const doc = await profilesRef.get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    const cloudProfiles = data.profiles || [];
+                    localStorage.setItem('hmsSavedProfiles', JSON.stringify(cloudProfiles));
+                    return cloudProfiles;
+                }
+            } catch (e) {
+                console.log("Cloud load failed, using local");
+            }
+            return JSON.parse(localStorage.getItem('hmsSavedProfiles')) || [];
+        }
+
+        window.onload = async function() {
+            await loadProfilesFromCloud(); // Load synced profiles first
             loadFormState();
-            setDefaultSignatory(); // Force John Bischof every time the page loads
+            setDefaultSignatory();
             attachPersistenceListeners();
             attachAutoFormatListeners();
 
@@ -402,7 +389,6 @@
             }
         }
 
-        // Reset form completely and go to top
         function resetPortal() {
             if (confirm('Start a completely new letter?')) {
                 localStorage.removeItem('hmsFormState');
@@ -413,23 +399,23 @@
                 document.getElementById('downPct').value = '';
                 document.getElementById('propAddr').value = 'TBD, TN';
                 document.getElementById('agentName').value = '';
-                setDefaultSignatory(); // Always back to John
+                setDefaultSignatory();
                 document.getElementById('liveSummary').style.display = 'none';
                 document.getElementById('documentView').style.display = 'none';
                 document.getElementById('inputSlide').style.display = 'block';
-                window.scrollTo(0, 0); // Scroll to top
+                window.scrollTo(0, 0);
             }
         }
 
         function editLetter() {
             document.getElementById('documentView').style.display = 'none';
             document.getElementById('inputSlide').style.display = 'block';
-            window.scrollTo(0, 0); // Scroll to top
+            window.scrollTo(0, 0);
         }
 
-        // ==================== SAVE / LOAD ====================
+        // ========== SAVE / LOAD WITH CLOUD SYNC ==========
 
-        function saveCustomerProfile() {
+        async function saveCustomerProfile() {
             const name = document.getElementById('custName').value.trim();
             if (!name) {
                 alert("Please enter a Borrower Name before saving.");
@@ -448,13 +434,20 @@
                 savedDate: new Date().toISOString().split('T')[0]
             };
 
-            let savedProfiles = JSON.parse(localStorage.getItem('hmsSavedProfiles')) || [];
-            // Remove old one with same name
+            let savedProfiles = await loadProfilesFromCloud();
+            // Remove old version with same name
             savedProfiles = savedProfiles.filter(p => p.borrowerName.toLowerCase() !== name.toLowerCase());
             savedProfiles.unshift(profile);
-            localStorage.setItem('hmsSavedProfiles', JSON.stringify(savedProfiles));
 
-            // After saving → reset form to defaults + John Bischof
+            // Save to both cloud + local
+            localStorage.setItem('hmsSavedProfiles', JSON.stringify(savedProfiles));
+            try {
+                await profilesRef.set({ profiles: savedProfiles });
+            } catch (e) {
+                console.log("Cloud save failed, saved locally");
+            }
+
+            // Reset form + back to John
             document.getElementById('custName').value = '';
             document.getElementById('program').value = 'Conventional';
             document.getElementById('price').value = '';
@@ -466,19 +459,19 @@
             document.getElementById('liveSummary').style.display = 'none';
             localStorage.removeItem('hmsFormState');
 
-            alert(`Profile for "${name}" has been saved!\nForm has been reset.`);
+            alert(`Profile for "${name}" saved and synced!\nForm has been reset.`);
             window.scrollTo(0, 0);
         }
 
-        function showLoadModal() {
+        async function showLoadModal() {
             const modal = document.getElementById('loadModal');
             const listContainer = document.getElementById('savedProfilesList');
             listContainer.innerHTML = '';
 
-            let savedProfiles = JSON.parse(localStorage.getItem('hmsSavedProfiles')) || [];
+            const savedProfiles = await loadProfilesFromCloud();
 
             if (savedProfiles.length === 0) {
-                listContainer.innerHTML = `<p style="color:#64748b; text-align:center;">No saved profiles yet on this device.</p>`;
+                listContainer.innerHTML = `<p style="color:#64748b; text-align:center;">No saved profiles yet.</p>`;
             } else {
                 savedProfiles.forEach((profile, index) => {
                     const div = document.createElement('div');
@@ -515,12 +508,18 @@
             alert(`Loaded profile for ${profile.borrowerName}`);
         }
 
-        function deleteProfile(index, event) {
+        async function deleteProfile(index, event) {
             event.stopImmediatePropagation();
             if (!confirm("Delete this saved profile?")) return;
-            let savedProfiles = JSON.parse(localStorage.getItem('hmsSavedProfiles')) || [];
+
+            let savedProfiles = await loadProfilesFromCloud();
             savedProfiles.splice(index, 1);
             localStorage.setItem('hmsSavedProfiles', JSON.stringify(savedProfiles));
+
+            try {
+                await profilesRef.set({ profiles: savedProfiles });
+            } catch (e) {}
+
             showLoadModal();
         }
 
@@ -528,8 +527,7 @@
             document.getElementById('loadModal').style.display = 'none';
         }
 
-        // ==================== GENERATE LETTER ====================
-
+        // ========== GENERATE LETTER ==========
         function generateLetter() {
             const nameInput = document.getElementById('custName');
             const agentInput = document.getElementById('agentName');
