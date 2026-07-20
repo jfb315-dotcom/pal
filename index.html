@@ -39,6 +39,10 @@
         #liveSummary { background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 15px; margin: 14px 0; font-size: 0.95rem; display: none; }
         .archive-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; margin-bottom: 12px; }
         .archive-item strong { color: var(--primary); }
+
+        .filter-bar { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+        .filter-btn { flex: 1; min-width: 70px; padding: 10px 6px; font-size: 0.9rem; background: #e2e8f0; color: #334155; border-radius: 8px; border: none; font-weight: 600; }
+        .filter-btn.active { background: var(--primary); color: white; }
         
         @media print {
             @page { size: letter portrait; margin: 0.25in; }
@@ -186,6 +190,14 @@
 
     <div id="archiveView" class="slide-card no-print">
         <h2>Saved Pre-Approvals</h2>
+
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="setArchiveFilter('all')" id="filter-all">All</button>
+            <button class="filter-btn" onclick="setArchiveFilter('john')" id="filter-john">John</button>
+            <button class="filter-btn" onclick="setArchiveFilter('darrell')" id="filter-darrell">Darrell</button>
+            <button class="filter-btn" onclick="setArchiveFilter('kristie')" id="filter-kristie">Kristie</button>
+        </div>
+
         <p id="archiveStatus" style="text-align:center; color:#64748b; font-size:0.9rem;">Loading...</p>
         <div id="archiveList"></div>
         <button onclick="hideArchives()" style="background:#6c757d; margin-top:20px;">← Back to Form</button>
@@ -209,6 +221,9 @@
             darrell: { name: "Darrell Whitaker", email: "darrell@hmsloan.com", phone: "(423) 505-1376", title: "Mortgage Broker / Owner", nmls: "", sigType: "text" },
             kristie: { name: "Kristie Bruce", email: "processor@hmsloan.com", phone: "(423) 339-8086 ext. 4", title: "Loan Officer", nmls: "NMLS #163760", sigType: "text" }
         };
+
+        let currentArchiveFilter = 'all';
+        let allArchiveDocs = [];
 
         function toTitleCase(str) {
             if (!str) return '';
@@ -413,6 +428,54 @@
             }
         }
 
+        function setArchiveFilter(filter) {
+            currentArchiveFilter = filter;
+            
+            // Update button styles
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('filter-' + filter).classList.add('active');
+            
+            renderArchiveList();
+        }
+
+        function renderArchiveList() {
+            const list = document.getElementById('archiveList');
+            const status = document.getElementById('archiveStatus');
+            
+            let filtered = allArchiveDocs;
+            if (currentArchiveFilter !== 'all') {
+                filtered = allArchiveDocs.filter(d => d.data.signatory === currentArchiveFilter);
+            }
+
+            if (filtered.length === 0) {
+                status.innerText = currentArchiveFilter === 'all' 
+                    ? "No saved pre-approvals yet." 
+                    : "No pre-approvals for this officer.";
+                list.innerHTML = "";
+                return;
+            }
+
+            status.innerText = "";
+            let html = "";
+            filtered.forEach(item => {
+                const a = item.data;
+                const dateStr = a.createdAtLocal || (a.createdAt ? a.createdAt.toDate().toLocaleDateString('en-US') : '');
+                const officerName = officers[a.signatory] ? officers[a.signatory].name.split(' ')[0] : '';
+                
+                html += `
+                    <div class="archive-item">
+                        <strong>${a.name}</strong><br>
+                        <small>${dateStr} • ${a.program} • ${a.price || ''} ${officerName ? '• ' + officerName : ''}</small><br>
+                        <div style="display:flex;gap:8px;margin-top:10px;">
+                            <button onclick="loadArchive('${item.id}')" style="flex:1;background:#005a9c;padding:10px;font-size:0.95rem;">Load</button>
+                            <button onclick="deleteArchive('${item.id}')" style="flex:1;background:#dc3545;padding:10px;font-size:0.95rem;">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+        }
+
         async function showArchives() {
             document.getElementById('inputSlide').style.display = 'none';
             document.getElementById('documentView').style.display = 'none';
@@ -423,31 +486,18 @@
             try {
                 const snapshot = await db.collection('hms_preapprovals')
                     .orderBy('createdAt', 'desc')
-                    .limit(50)
+                    .limit(100)
                     .get();
 
-                if (snapshot.empty) {
-                    document.getElementById('archiveStatus').innerText = "No saved pre-approvals yet.";
-                    return;
-                }
-
-                document.getElementById('archiveStatus').innerText = "";
-                let html = "";
+                allArchiveDocs = [];
                 snapshot.forEach(doc => {
-                    const a = doc.data();
-                    const dateStr = a.createdAtLocal || (a.createdAt ? a.createdAt.toDate().toLocaleDateString('en-US') : '');
-                    html += `
-                        <div class="archive-item">
-                            <strong>${a.name}</strong><br>
-                            <small>${dateStr} • ${a.program} • ${a.price || ''}</small><br>
-                            <div style="display:flex;gap:8px;margin-top:10px;">
-                                <button onclick="loadArchive('${doc.id}')" style="flex:1;background:#005a9c;padding:10px;font-size:0.95rem;">Load</button>
-                                <button onclick="deleteArchive('${doc.id}')" style="flex:1;background:#dc3545;padding:10px;font-size:0.95rem;">Delete</button>
-                            </div>
-                        </div>
-                    `;
+                    allArchiveDocs.push({ id: doc.id, data: doc.data() });
                 });
-                document.getElementById('archiveList').innerHTML = html;
+
+                // Default to current signatory if possible
+                const currentOfficer = document.getElementById('signatory').value;
+                setArchiveFilter(currentOfficer || 'all');
+                
             } catch (err) {
                 console.error(err);
                 document.getElementById('archiveStatus').innerText = "Error loading archives.";
@@ -486,7 +536,9 @@
             if (!confirm("Delete this saved pre-approval?")) return;
             try {
                 await db.collection('hms_preapprovals').doc(docId).delete();
-                showArchives();
+                // Remove from local array and re-render
+                allArchiveDocs = allArchiveDocs.filter(d => d.id !== docId);
+                renderArchiveList();
             } catch (err) {
                 alert("Error deleting.");
             }
