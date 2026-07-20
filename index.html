@@ -112,20 +112,9 @@
             margin-top: 4px;
         }
 
-        /* =========================================
-           AGGRESSIVE 1-PAGE PRINT OVERRIDES
-           ========================================= */
         @media print {
-            @page { 
-                size: letter portrait; 
-                margin: 0.25in; 
-            }
-           
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-           
+            @page { size: letter portrait; margin: 0.25in; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             html, body {
                 background: white !important;
                 height: 100% !important;
@@ -134,36 +123,17 @@
                 padding: 0 !important;
                 overflow: hidden !important;
             }
-           
             .no-print, #inputSlide, #actionButtons { display: none !important; }
-           
             #documentView { display: block !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
-           
             #letterWrapper {
-                box-shadow: none !important; 
-                padding: 0 !important; 
-                border-radius: 0 !important;
-                width: 100% !important; 
-                max-width: 100% !important; 
-                border: none !important; 
-                margin: 0 !important;
+                box-shadow: none !important; padding: 0 !important; border-radius: 0 !important;
+                width: 100% !important; max-width: 100% !important; border: none !important; margin: 0 !important;
             }
-            
-            .letter-content { 
-                font-size: 10pt !important; 
-                line-height: 1.28 !important; 
-            }
+            .letter-content { font-size: 10pt !important; line-height: 1.28 !important; }
             p { margin-bottom: 7px !important; }
-            .header { 
-                margin-bottom: 8px !important; 
-                padding-bottom: 4px !important; 
-            }
+            .header { margin-bottom: 8px !important; padding-bottom: 4px !important; }
             .header img { width: 95px !important; max-width: 95px !important; }
-            .re-box { 
-                margin: 8px 0 !important; 
-                padding: 7px 10px !important; 
-                font-size: 9.2pt !important; 
-            }
+            .re-box { margin: 8px 0 !important; padding: 7px 10px !important; font-size: 9.2pt !important; }
             .sig-block { margin-top: 12px !important; }
             .cert-id { margin-top: 12px !important; font-size: 7pt !important; }
         }
@@ -174,7 +144,7 @@
         <div class="logo-preview"><img src="email-logosmall.png" alt="HMS Logo"></div>
         <h2>Pre-Approval Portal</h2>
         <p style="text-align:center; color:#64748b; margin-top:-8px; margin-bottom:18px; font-size:0.88rem;">
-            Names auto-capitalize • Property address defaults to "TBD, TN"
+            Names auto-capitalize • Everything is auto-saved
         </p>
 
         <div class="input-group">
@@ -231,9 +201,9 @@
         
         <div class="dual-input">
             <div class="input-group">
-                <label>Property Address (Optional)</label>
+                <label>Property Address</label>
                 <input type="text" id="propAddr" placeholder="TBD, TN" oninput="saveFormState()">
-                <div class="helper-text">Defaults to TBD, TN — overwrite with full address if known</div>
+                <div class="helper-text">Defaults to TBD, TN</div>
             </div>
             <div class="input-group">
                 <label>Listing Agent (Optional)</label>
@@ -242,7 +212,7 @@
         </div>
         
         <button onclick="generateLetter()">Generate Automated Letter</button>
-        <p class="helper-text" style="text-align:center;">* Required fields &nbsp;•&nbsp; iPhone: Use 100% scale in print dialog</p>
+        <p class="helper-text" style="text-align:center;">* Required fields</p>
     </div>
     
     <div id="documentView">
@@ -339,6 +309,7 @@
         window.onload = function() {
             loadFormState();
             
+            // Restore last used signatory if no full form state exists
             const savedOfficer = localStorage.getItem('hmsDefaultSignatory');
             if (savedOfficer && !localStorage.getItem('hmsFormState')) {
                 document.getElementById('signatory').value = savedOfficer;
@@ -347,6 +318,7 @@
             attachPersistenceListeners();
             attachAutoFormatListeners();
             
+            // Default address
             const propField = document.getElementById('propAddr');
             if (!propField.value.trim()) {
                 propField.value = "TBD, TN";
@@ -355,16 +327,14 @@
         };
         
         function attachAutoFormatListeners() {
-            const custName = document.getElementById('custName');
-            custName.addEventListener('blur', function() {
+            document.getElementById('custName').addEventListener('blur', function() {
                 if (this.value.trim()) {
                     this.value = toTitleCase(this.value);
                     saveFormState();
                 }
             });
             
-            const agentName = document.getElementById('agentName');
-            agentName.addEventListener('blur', function() {
+            document.getElementById('agentName').addEventListener('blur', function() {
                 if (this.value.trim()) {
                     this.value = toTitleCase(this.value);
                     saveFormState();
@@ -373,8 +343,7 @@
         }
         
         function attachPersistenceListeners() {
-            const fields = ['custName', 'program', 'signatory', 'price', 'downAmt', 'downPct', 'propAddr', 'agentName'];
-            fields.forEach(id => {
+            ['custName', 'program', 'signatory', 'price', 'downAmt', 'downPct', 'propAddr', 'agentName'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
                     el.addEventListener('input', saveFormState);
@@ -491,7 +460,7 @@
         }
         
         function resetPortal() {
-            if (confirm('Start a completely new letter?')) {
+            if (confirm('Start a completely new letter? This will clear the saved form.')) {
                 localStorage.removeItem('hmsFormState');
                 location.reload();
             }
@@ -504,6 +473,7 @@
         }
         
         function generateLetter() {
+            // Auto title-case
             const nameInput = document.getElementById('custName');
             const agentInput = document.getElementById('agentName');
             
@@ -538,7 +508,7 @@
             const randomHex = Math.floor(Math.random()*16777215).toString(16).toUpperCase().substring(0, 4);
             const stampId = `VALIDATION ID: HMS-${today.getFullYear()}${(today.getMonth()+1).toString().padStart(2,'0')}${today.getDate().toString().padStart(2,'0')}-${randomHex}`;
             
-            // Populate letter
+            // Fill letter
             document.getElementById('validationIdOut').innerText = stampId;
             document.getElementById('dateOut').innerText = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
             document.getElementById('expireOut').innerText = expiry.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -548,11 +518,9 @@
             document.getElementById('loanOut').innerText = fmt.format(loanAmt);
             document.getElementById('downOut').innerText = fmt.format(downAmt) + " (" + downPct + "%)";
             document.getElementById('ltvOut').innerText = ltv + "%";
-            
-            // Always show Property Address (including TBD, TN)
             document.getElementById('propOut').innerText = prop;
             
-            // Officer details
+            // Officer
             document.getElementById('headerEmail').innerText = officer.email;
             document.getElementById('sigName').innerText = officer.name;
             document.getElementById('sigTitle').innerText = officer.title;
@@ -576,7 +544,7 @@
                 sigContainer.innerHTML = `<div style="font-family: 'Caveat', cursive; font-size: 32pt; color: #0d233a; line-height: 48px; transform: rotate(-2.5deg);">${officer.name}</div>`;
             }
             
-            // Special notice (only when real address or agent is present)
+            // Special notice
             const realtorLine = document.getElementById('realtorLine');
             const isDefaultAddress = prop.toUpperCase() === "TBD, TN";
             
@@ -591,6 +559,7 @@
                 realtorLine.style.display = "none";
             }
             
+            // Switch views
             document.getElementById('inputSlide').style.display = 'none';
             document.getElementById('documentView').style.display = 'flex';
             window.scrollTo(0, 0);
@@ -616,7 +585,7 @@
             
             navigator.clipboard.writeText(clipboardText).then(() => {
                 alert("Pre-approval summary copied to clipboard!");
-            }).catch(err => {
+            }).catch(() => {
                 alert("Unable to copy automatically.");
             });
         }
