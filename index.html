@@ -4,135 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HMS Pre-Approval Portal</title>
-   
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
-   
     <style>
-        :root {
-            --primary: #005a9c;
-            --bg: #f0f2f5;
-            --text: #1a202c;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            padding: 15px;
-        }
-        .slide-card {
-            background: white;
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 550px;
-            margin: 10px auto;
-            box-sizing: border-box;
-        }
+        :root { --primary: #005a9c; --bg: #f0f2f5; --text: #1a202c; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; justify-content: center; min-height: 100vh; }
+        .slide-card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 550px; box-sizing: border-box; }
         .logo-preview { text-align: center; margin-bottom: 15px; }
-        .logo-preview img { width: 110px; height: auto; }
-       
+        .logo-preview img { width: 110px; }
         h2 { text-align: center; margin-bottom: 18px; color: var(--primary); }
         .input-group { margin-bottom: 15px; }
         label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; color: #4a5568; }
         input, select { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
-        input:focus { border-color: var(--primary); outline: none; }
         .dual-input { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-       
-        button { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.15rem; font-weight: bold; cursor: pointer; margin-top: 15px; touch-action: manipulation; }
-        button:hover { filter: brightness(1.1); }
-       
-        #documentView {
-            display: none;
-            width: 100%;
-            max-width: 600px;
-            flex-direction: column;
-            align-items: center;
-            padding-bottom: 40px;
-            margin: 0 auto;
-        }
-        #letterWrapper {
-            background: white;
-            width: 100%;
-            box-sizing: border-box;
-            padding: 25px 20px;
-            margin: 0 auto;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            border-radius: 12px;
-        }
-        .letter-content { font-family: 'Times New Roman', Times, serif; font-size: 11.5pt; line-height: 1.45; text-align: justify; color: #000; }
-       
+        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        
+        #documentView, #archiveView { display: none; width: 100%; max-width: 600px; }
+        #letterWrapper { background: white; width: 100%; padding: 25px 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); border-radius: 12px; box-sizing: border-box; }
+        .letter-content { font-family: 'Times New Roman', Times, serif; font-size: 11.5pt; line-height: 1.45; text-align: justify; }
         .header { text-align: center; border-bottom: 2px solid var(--primary); margin-bottom: 18px; padding-bottom: 8px; }
-        .header img { width: 115px; max-width: 115px; height: auto; display: inline-block; }
+        .header img { width: 115px; }
         .contact-info { font-size: 9.5pt; color: #444; margin-top: 4px; }
-       
-        .re-box { 
-            background: #f8f9fa; 
-            padding: 11px 12px; 
-            border-left: 4px solid var(--primary); 
-            margin: 14px 0; 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 7px; 
-            font-size: 10.3pt; 
-        }
+        .re-box { background: #f8f9fa; padding: 11px 12px; border-left: 4px solid var(--primary); margin: 14px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; font-size: 10.3pt; }
         .re-full { grid-column: 1 / -1; }
-       
-        .sig-block { margin-top: 22px; page-break-inside: avoid; }
-       
-        .cert-id { font-size: 8pt; color: #a0aec0; text-align: center; margin-top: 22px; font-family: monospace; width: 100%; }
-        p { margin-top: 0; margin-bottom: 11px; }
+        .sig-block { margin-top: 22px; }
+        .cert-id { font-size: 8pt; color: #a0aec0; text-align: center; margin-top: 22px; font-family: monospace; }
         
-        .action-btn-container {
-            display: flex;
-            flex-direction: column;
-            gap: 11px;
-            margin-top: 22px;
-            width: 100%;
-        }
-        .action-btn-container button { margin: 0; width: 100%; }
+        .action-btn-container { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; width: 100%; }
+        .action-btn-container button { margin: 0; }
         
-        #liveSummary {
-            background: #f0f7ff;
-            border: 1px solid #bfdbfe;
-            border-radius: 10px;
-            padding: 13px 15px;
-            margin: 14px 0;
-            font-size: 0.95rem;
-        }
+        #liveSummary { background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 15px; margin: 14px 0; font-size: 0.95rem; display: none; }
+        .archive-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; margin-bottom: 12px; }
+        .archive-item strong { color: var(--primary); }
         
-        .helper-text {
-            font-size: 0.8rem;
-            color: #64748b;
-            margin-top: 4px;
-        }
-
         @media print {
             @page { size: letter portrait; margin: 0.25in; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            html, body {
-                background: white !important;
-                height: 100% !important;
-                max-height: 10.3in !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                overflow: hidden !important;
-            }
-            .no-print, #inputSlide, #actionButtons { display: none !important; }
+            html, body { background: white !important; height: 100% !important; max-height: 10.3in !important; margin: 0 !important; padding: 0 !important; overflow: hidden !important; }
+            .no-print, #inputSlide, #archiveView, .action-btn-container { display: none !important; }
             #documentView { display: block !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
-            #letterWrapper {
-                box-shadow: none !important; padding: 0 !important; border-radius: 0 !important;
-                width: 100% !important; max-width: 100% !important; border: none !important; margin: 0 !important;
-            }
+            #letterWrapper { box-shadow: none !important; padding: 0 !important; border-radius: 0 !important; width: 100% !important; margin: 0 !important; }
             .letter-content { font-size: 10pt !important; line-height: 1.28 !important; }
             p { margin-bottom: 7px !important; }
             .header { margin-bottom: 8px !important; padding-bottom: 4px !important; }
-            .header img { width: 95px !important; max-width: 95px !important; }
+            .header img { width: 95px !important; }
             .re-box { margin: 8px 0 !important; padding: 7px 10px !important; font-size: 9.2pt !important; }
             .sig-block { margin-top: 12px !important; }
             .cert-id { margin-top: 12px !important; font-size: 7pt !important; }
@@ -140,11 +54,13 @@
     </style>
 </head>
 <body>
+
+    <!-- ========== INPUT FORM ========== -->
     <div class="slide-card no-print" id="inputSlide">
         <div class="logo-preview"><img src="email-logosmall.png" alt="HMS Logo"></div>
         <h2>Pre-Approval Portal</h2>
-        <p style="text-align:center; color:#64748b; margin-top:-8px; margin-bottom:18px; font-size:0.88rem;">
-            Names auto-capitalize • Everything is auto-saved
+        <p style="text-align:center; color:#64748b; margin-top:-8px; margin-bottom:18px; font-size:0.9rem;">
+            Form auto-saves • You can also manually save to Archives
         </p>
 
         <div class="input-group">
@@ -155,7 +71,7 @@
         <div class="dual-input">
             <div class="input-group">
                 <label>Loan Program</label>
-                <select id="program" onchange="checkProgramDefaults(); updateLiveSummary(); saveFormState();">
+                <select id="program">
                     <option value="Conventional">Conventional</option>
                     <option value="FHA">FHA</option>
                     <option value="VA">VA</option>
@@ -164,7 +80,7 @@
             </div>
             <div class="input-group">
                 <label>Signatory Officer</label>
-                <select id="signatory" onchange="saveSignatoryDefault(); saveFormState();">
+                <select id="signatory">
                     <option value="john">John Bischof</option>
                     <option value="darrell">Darrell Whitaker</option>
                     <option value="kristie">Kristie Bruce</option>
@@ -174,47 +90,43 @@
         
         <div class="input-group">
             <label>Purchase Price ($) <span style="color:#e11d48;">*</span></label>
-            <input type="text" id="price" inputmode="numeric" pattern="[0-9,]*" placeholder="225,000" 
-                   oninput="formatCurrencyInput(this); calcDownAmount(); updateLiveSummary(); saveFormState();">
+            <input type="text" id="price" inputmode="numeric" placeholder="225,000">
         </div>
         
         <div class="input-group">
             <label>Down Payment</label>
             <div class="dual-input">
-                <div>
-                    <small>Amount ($)</small>
-                    <input type="text" id="downAmt" inputmode="numeric" pattern="[0-9,]*" placeholder="0" 
-                           oninput="formatCurrencyInput(this); calcDownPercent(); updateLiveSummary(); saveFormState();">
-                </div>
-                <div>
-                    <small>Percent (%)</small>
-                    <input type="number" id="downPct" inputmode="decimal" step="0.1" placeholder="0" 
-                           oninput="calcDownAmount(); updateLiveSummary(); saveFormState();">
-                </div>
+                <div><small>Amount ($)</small><input type="text" id="downAmt" inputmode="numeric" placeholder="0"></div>
+                <div><small>Percent (%)</small><input type="number" id="downPct" step="0.1" placeholder="0"></div>
             </div>
         </div>
         
-        <div id="liveSummary" style="display: none;">
-            <strong>Live Summary:</strong> 
-            <span id="liveLoan"></span> &nbsp;|&nbsp; LTV <span id="liveLTV"></span>
+        <div id="liveSummary">
+            <strong>Live Summary:</strong> <span id="liveLoan"></span> &nbsp;|&nbsp; LTV <span id="liveLTV"></span>
         </div>
         
         <div class="dual-input">
             <div class="input-group">
                 <label>Property Address</label>
-                <input type="text" id="propAddr" placeholder="TBD, TN" oninput="saveFormState()">
-                <div class="helper-text">Defaults to TBD, TN</div>
+                <input type="text" id="propAddr" value="TBD, TN">
             </div>
             <div class="input-group">
                 <label>Listing Agent (Optional)</label>
-                <input type="text" id="agentName" placeholder="Agent Name" oninput="saveFormState()">
+                <input type="text" id="agentName" placeholder="Agent Name">
             </div>
         </div>
         
         <button onclick="generateLetter()">Generate Automated Letter</button>
-        <p class="helper-text" style="text-align:center;">* Required fields</p>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px;">
+            <button onclick="saveToArchives()" style="background:#28a745;">💾 Save to Archives</button>
+            <button onclick="showArchives()" style="background:#6f42c1;">📁 View Archives</button>
+        </div>
+        
+        <button onclick="resetPortal()" style="background:#6c757d; margin-top:10px;">🔄 Clear Form</button>
     </div>
     
+    <!-- ========== LETTER VIEW ========== -->
     <div id="documentView">
         <div id="letterWrapper">
             <div class="header">
@@ -236,24 +148,21 @@
                     <div><strong>Loan Amount:</strong> <span id="loanOut"></span></div>
                     <div><strong>Down Payment:</strong> <span id="downOut"></span></div>
                     <div><strong>LTV Percentage:</strong> <span id="ltvOut"></span></div>
-                    <div class="re-full">
-                        <strong>Property Address:</strong> <span id="propOut"></span>
-                    </div>
+                    <div class="re-full"><strong>Property Address:</strong> <span id="propOut"></span></div>
                 </div>
                 
                 <p>This letter serves as formal confirmation that the borrower(s) listed above have been pre-approved for residential financing through <strong>Home Mortgage Solutions LLC</strong>.</p>
-                <p id="realtorLine" style="display:none; font-style: italic; background-color: #fcfcfc; padding: 5px; border: 1px dashed #cbd5e0; margin-bottom: 7px;"></p>
+                <p id="realtorLine" style="display:none; font-style: italic; background:#fcfcfc; padding:5px; border:1px dashed #cbd5e0;"></p>
                 <p>Please note that final loan approval remains strictly subject to the receipt and underwriting satisfaction of a fully executed purchase contract and all applicable addendums, an acceptable property appraisal report, a clear title report, satisfactory property insurance policies, and the timely submission of all remaining background documentation requested for final underwriting sign-off.</p>
                 <p>This Pre‐Approval does not constitute a final loan approval, a commitment to lend or a guarantee of interest rate, and should be considered a preliminary assessment of the applicant's ability to obtain a mortgage loan based on the current underwriting guidelines in place for the loan program requested.</p>
-               
                 <p>Once a purchase contract has been fully executed we will submit the collected documentation necessary to obtain loan approval from underwriting.</p>
-               
                 <p>I am privileged to assist you with your home financing needs. I realize there are many lenders to choose from and I appreciate you have selected my company, and you will receive unparallel customer service throughout your process and after. If you should have any questions, please feel free to contact me at <span id="contactCallout"></span>. I look forward to working with you.</p>
                 <p>This certificate remains an active validation of financial capability for a period of 90 days, officially expiring on <strong id="expireOut"></strong>.</p>
+                
                 <div class="sig-block">
                     Sincerely,<br>
-                    <div id="sigContainer" style="margin: 8px 0;"></div>
-                    <div style="width: 250px; border-top: 1px solid #000; padding-top: 3px;">
+                    <div id="sigContainer" style="margin:8px 0;"></div>
+                    <div style="width:250px; border-top:1px solid #000; padding-top:3px;">
                         <strong id="sigName"></strong><br>
                         <span id="sigTitle"></span><br>
                         Home Mortgage Solutions LLC<br>
@@ -265,93 +174,42 @@
             </div>
         </div>
         
-        <div class="action-btn-container no-print" id="actionButtons">
-            <button style="background: #28a745;" onclick="window.print()">🖨️ Print / Save as PDF</button>
-            <button style="background: #007bff;" onclick="copyToClipboard()">📋 Copy Text Summary</button>
-            <button style="background: #17a2b8;" onclick="editLetter()">✏️ Edit / Change Details</button>
-            <button style="background: #6c757d;" onclick="resetPortal()">🔄 Start New Letter</button>
+        <div class="action-btn-container no-print">
+            <button style="background:#28a745;" onclick="window.print()">🖨️ Print / Save as PDF</button>
+            <button style="background:#007bff;" onclick="copyToClipboard()">📋 Copy Text Summary</button>
+            <button style="background:#17a2b8;" onclick="editLetter()">✏️ Edit / Change Details</button>
+            <button style="background:#28a745;" onclick="saveCurrentLetterToArchives()">💾 Save This Letter to Archives</button>
+            <button style="background:#6c757d;" onclick="resetPortal()">🔄 Start New Letter</button>
         </div>
     </div>
-    
+
+    <!-- ========== ARCHIVES VIEW ========== -->
+    <div id="archiveView" class="slide-card no-print">
+        <h2>Saved Pre-Approvals</h2>
+        <div id="archiveList"></div>
+        <button onclick="hideArchives()" style="background:#6c757d; margin-top:20px;">← Back to Form</button>
+    </div>
+
     <script>
         const officers = {
-            john: {
-                name: "John Bischof",
-                email: "john@hmsloan.com",
-                phone: "(423) 505-9811",
-                title: "Mortgage Broker / Owner",
-                nmls: "",
-                sigType: "image"
-            },
-            darrell: {
-                name: "Darrell Whitaker",
-                email: "darrell@hmsloan.com",
-                phone: "(423) 505-1376",
-                title: "Mortgage Broker / Owner",
-                nmls: "",
-                sigType: "text"
-            },
-            kristie: {
-                name: "Kristie Bruce",
-                email: "processor@hmsloan.com",
-                phone: "(423) 339-8086 ext. 4",
-                title: "Loan Officer",
-                nmls: "NMLS #163760",
-                sigType: "text"
-            }
+            john: { name: "John Bischof", email: "john@hmsloan.com", phone: "(423) 505-9811", title: "Mortgage Broker / Owner", nmls: "", sigType: "image" },
+            darrell: { name: "Darrell Whitaker", email: "darrell@hmsloan.com", phone: "(423) 505-1376", title: "Mortgage Broker / Owner", nmls: "", sigType: "text" },
+            kristie: { name: "Kristie Bruce", email: "processor@hmsloan.com", phone: "(423) 339-8086 ext. 4", title: "Loan Officer", nmls: "NMLS #163760", sigType: "text" }
         };
 
         function toTitleCase(str) {
             if (!str) return '';
-            return str.toLowerCase().replace(/\b\w/g, char => char.toUpperCase());
+            return str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
         }
 
-        window.onload = function() {
-            loadFormState();
-            
-            // Restore last used signatory if no full form state exists
-            const savedOfficer = localStorage.getItem('hmsDefaultSignatory');
-            if (savedOfficer && !localStorage.getItem('hmsFormState')) {
-                document.getElementById('signatory').value = savedOfficer;
-            }
-            
-            attachPersistenceListeners();
-            attachAutoFormatListeners();
-            
-            // Default address
-            const propField = document.getElementById('propAddr');
-            if (!propField.value.trim()) {
-                propField.value = "TBD, TN";
-                saveFormState();
-            }
-        };
-        
-        function attachAutoFormatListeners() {
-            document.getElementById('custName').addEventListener('blur', function() {
-                if (this.value.trim()) {
-                    this.value = toTitleCase(this.value);
-                    saveFormState();
-                }
-            });
-            
-            document.getElementById('agentName').addEventListener('blur', function() {
-                if (this.value.trim()) {
-                    this.value = toTitleCase(this.value);
-                    saveFormState();
-                }
-            });
+        function getRaw(id) {
+            return parseFloat((document.getElementById(id).value || '').replace(/,/g, '')) || 0;
         }
-        
-        function attachPersistenceListeners() {
-            ['custName', 'program', 'signatory', 'price', 'downAmt', 'downPct', 'propAddr', 'agentName'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    el.addEventListener('input', saveFormState);
-                    el.addEventListener('change', saveFormState);
-                }
-            });
+
+        function formatCurrency(num) {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
         }
-        
+
         function saveFormState() {
             const state = {
                 custName: document.getElementById('custName').value,
@@ -365,192 +223,143 @@
             };
             localStorage.setItem('hmsFormState', JSON.stringify(state));
         }
-        
+
         function loadFormState() {
             const saved = localStorage.getItem('hmsFormState');
             if (!saved) return;
-            
             try {
-                const state = JSON.parse(saved);
-                if (state.custName) document.getElementById('custName').value = state.custName;
-                if (state.program) document.getElementById('program').value = state.program;
-                if (state.signatory) document.getElementById('signatory').value = state.signatory;
-                if (state.price) document.getElementById('price').value = state.price;
-                if (state.downAmt) document.getElementById('downAmt').value = state.downAmt;
-                if (state.downPct) document.getElementById('downPct').value = state.downPct;
-                if (state.propAddr) document.getElementById('propAddr').value = state.propAddr;
-                if (state.agentName) document.getElementById('agentName').value = state.agentName;
-                
-                if (state.price) updateLiveSummary();
-            } catch (e) {
-                console.warn('Could not restore form state');
-            }
+                const s = JSON.parse(saved);
+                if (s.custName) document.getElementById('custName').value = s.custName;
+                if (s.program) document.getElementById('program').value = s.program;
+                if (s.signatory) document.getElementById('signatory').value = s.signatory;
+                if (s.price) document.getElementById('price').value = s.price;
+                if (s.downAmt) document.getElementById('downAmt').value = s.downAmt;
+                if (s.downPct) document.getElementById('downPct').value = s.downPct;
+                if (s.propAddr) document.getElementById('propAddr').value = s.propAddr;
+                if (s.agentName) document.getElementById('agentName').value = s.agentName;
+                updateLiveSummary();
+            } catch(e) {}
         }
-        
-        function saveSignatoryDefault() {
-            localStorage.setItem('hmsDefaultSignatory', document.getElementById('signatory').value);
-        }
-        
-        function formatCurrencyInput(input) {
-            let value = input.value.replace(/,/g, '');
-            if (!isNaN(value) && value !== '') {
-                input.value = parseFloat(value).toLocaleString('en-US');
-            }
-        }
-        
-        function getRawValue(id) {
-            return parseFloat(document.getElementById(id).value.replace(/,/g, '')) || 0;
-        }
-        
-        function setFormattedValue(id, num) {
-            if (num > 0) {
-                document.getElementById(id).value = Math.round(num).toLocaleString('en-US');
-            } else {
-                document.getElementById(id).value = '';
-            }
-        }
-        
-        function checkProgramDefaults() {
-            const prog = document.getElementById('program').value;
-            if (prog === "VA" || prog === "USDA") {
-                document.getElementById('downPct').value = 0;
-                calcDownAmount();
-            } else if (prog === "FHA") {
-                document.getElementById('downPct').value = 3.5;
-                calcDownAmount();
-            }
-            updateLiveSummary();
-        }
-        
-        function calcDownAmount() {
-            const price = getRawValue('price');
-            const percent = parseFloat(document.getElementById('downPct').value) || 0;
-            if (price) {
-                const amount = price * (percent / 100);
-                setFormattedValue('downAmt', amount);
-            }
-            updateLiveSummary();
-        }
-        
-        function calcDownPercent() {
-            const price = getRawValue('price');
-            const amount = getRawValue('downAmt');
-            if (price && amount) {
-                document.getElementById('downPct').value = ((amount / price) * 100).toFixed(2);
-            }
-            updateLiveSummary();
-        }
-        
+
         function updateLiveSummary() {
-            const price = getRawValue('price');
-            const downAmt = getRawValue('downAmt');
-            const loanAmt = price - downAmt;
-            const ltv = price > 0 ? ((loanAmt / price) * 100).toFixed(2) : 0;
-            
-            const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
-            
-            const summaryEl = document.getElementById('liveSummary');
+            const price = getRaw('price');
+            const down = getRaw('downAmt');
+            const loan = price - down;
+            const ltv = price > 0 ? ((loan / price) * 100).toFixed(2) : 0;
             if (price > 0) {
-                document.getElementById('liveLoan').innerText = fmt.format(loanAmt);
+                document.getElementById('liveLoan').innerText = formatCurrency(loan);
                 document.getElementById('liveLTV').innerText = ltv + '%';
-                summaryEl.style.display = 'block';
+                document.getElementById('liveSummary').style.display = 'block';
             } else {
-                summaryEl.style.display = 'none';
+                document.getElementById('liveSummary').style.display = 'none';
             }
         }
-        
-        function resetPortal() {
-            if (confirm('Start a completely new letter? This will clear the saved form.')) {
-                localStorage.removeItem('hmsFormState');
-                location.reload();
-            }
-        }
-        
-        function editLetter() {
-            document.getElementById('documentView').style.display = 'none';
-            document.getElementById('inputSlide').style.display = 'block';
-            window.scrollTo(0, 0);
-        }
-        
-        function generateLetter() {
-            // Auto title-case
-            const nameInput = document.getElementById('custName');
-            const agentInput = document.getElementById('agentName');
-            
-            const name = toTitleCase(nameInput.value.trim());
-            const agent = toTitleCase(agentInput.value.trim());
-            
-            nameInput.value = name;
-            agentInput.value = agent;
+
+        // Auto calculations + saving
+        document.getElementById('price').addEventListener('input', function() {
+            let v = this.value.replace(/,/g,'');
+            if (!isNaN(v) && v !== '') this.value = parseFloat(v).toLocaleString('en-US');
+            const pct = parseFloat(document.getElementById('downPct').value) || 0;
+            if (getRaw('price')) document.getElementById('downAmt').value = Math.round(getRaw('price') * pct / 100).toLocaleString('en-US');
+            updateLiveSummary();
             saveFormState();
-            
+        });
+        document.getElementById('downAmt').addEventListener('input', function() {
+            let v = this.value.replace(/,/g,'');
+            if (!isNaN(v) && v !== '') this.value = parseFloat(v).toLocaleString('en-US');
+            if (getRaw('price') && getRaw('downAmt')) {
+                document.getElementById('downPct').value = ((getRaw('downAmt') / getRaw('price')) * 100).toFixed(2);
+            }
+            updateLiveSummary();
+            saveFormState();
+        });
+        document.getElementById('downPct').addEventListener('input', function() {
+            if (getRaw('price')) {
+                document.getElementById('downAmt').value = Math.round(getRaw('price') * (parseFloat(this.value)||0) / 100).toLocaleString('en-US');
+            }
+            updateLiveSummary();
+            saveFormState();
+        });
+        document.getElementById('program').addEventListener('change', function() {
+            if (this.value === 'VA' || this.value === 'USDA') {
+                document.getElementById('downPct').value = 0;
+            } else if (this.value === 'FHA') {
+                document.getElementById('downPct').value = 3.5;
+            }
+            document.getElementById('downPct').dispatchEvent(new Event('input'));
+            saveFormState();
+        });
+        ['custName','signatory','propAddr','agentName'].forEach(id => {
+            document.getElementById(id).addEventListener('input', saveFormState);
+        });
+        document.getElementById('custName').addEventListener('blur', function() {
+            if (this.value.trim()) this.value = toTitleCase(this.value);
+            saveFormState();
+        });
+        document.getElementById('agentName').addEventListener('blur', function() {
+            if (this.value.trim()) this.value = toTitleCase(this.value);
+            saveFormState();
+        });
+
+        function generateLetter() {
+            const name = toTitleCase(document.getElementById('custName').value.trim());
+            const agent = toTitleCase(document.getElementById('agentName').value.trim());
             const prop = document.getElementById('propAddr').value.trim() || "TBD, TN";
-            const price = getRawValue('price');
-            const downAmt = getRawValue('downAmt');
+            const price = getRaw('price');
+            const downAmt = getRaw('downAmt');
             const downPct = document.getElementById('downPct').value || "0";
             const prog = document.getElementById('program').value;
             const sigKey = document.getElementById('signatory').value;
-            
+
             if (!name || !price) {
                 alert("Borrower Name and Purchase Price are required.");
                 return;
             }
-            
-            const officer = officers[sigKey] || officers.john;
+
+            document.getElementById('custName').value = name;
+            document.getElementById('agentName').value = agent;
+            saveFormState();
+
+            const officer = officers[sigKey];
             const loanAmt = price - downAmt;
             const ltv = ((loanAmt / price) * 100).toFixed(2);
-            const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
-            
             const today = new Date();
             const expiry = new Date();
             expiry.setDate(today.getDate() + 90);
-            
-            const randomHex = Math.floor(Math.random()*16777215).toString(16).toUpperCase().substring(0, 4);
-            const stampId = `VALIDATION ID: HMS-${today.getFullYear()}${(today.getMonth()+1).toString().padStart(2,'0')}${today.getDate().toString().padStart(2,'0')}-${randomHex}`;
-            
-            // Fill letter
-            document.getElementById('validationIdOut').innerText = stampId;
-            document.getElementById('dateOut').innerText = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-            document.getElementById('expireOut').innerText = expiry.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            const stampId = `VALIDATION ID: HMS-${today.getFullYear()}${(today.getMonth()+1).toString().padStart(2,'0')}${today.getDate().toString().padStart(2,'0')}-${Math.floor(Math.random()*16777215).toString(16).toUpperCase().substring(0,4)}`;
+
+            document.getElementById('dateOut').innerText = today.toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
+            document.getElementById('expireOut').innerText = expiry.toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
             document.getElementById('nameOut').innerText = name;
             document.getElementById('progOut').innerText = prog;
-            document.getElementById('priceOut').innerText = fmt.format(price);
-            document.getElementById('loanOut').innerText = fmt.format(loanAmt);
-            document.getElementById('downOut').innerText = fmt.format(downAmt) + " (" + downPct + "%)";
+            document.getElementById('priceOut').innerText = formatCurrency(price);
+            document.getElementById('loanOut').innerText = formatCurrency(loanAmt);
+            document.getElementById('downOut').innerText = formatCurrency(downAmt) + " (" + downPct + "%)";
             document.getElementById('ltvOut').innerText = ltv + "%";
             document.getElementById('propOut').innerText = prop;
-            
-            // Officer
+            document.getElementById('validationIdOut').innerText = stampId;
+
             document.getElementById('headerEmail').innerText = officer.email;
             document.getElementById('sigName').innerText = officer.name;
             document.getElementById('sigTitle').innerText = officer.title;
             document.getElementById('sigEmail').innerText = officer.email;
-            document.getElementById('contactCallout').innerText = `${officer.name} at ${officer.phone}`;
-            
+            document.getElementById('contactCallout').innerText = officer.name + " at " + officer.phone;
+
             const nmlsEl = document.getElementById('sigNmls');
-            if (officer.nmls) {
-                nmlsEl.innerText = officer.nmls + "\n";
-                nmlsEl.style.display = "block";
-            } else {
-                nmlsEl.innerText = "";
-                nmlsEl.style.display = "none";
-            }
-            
-            // Signature
+            nmlsEl.innerText = officer.nmls ? officer.nmls + "\n" : "";
+            nmlsEl.style.display = officer.nmls ? "block" : "none";
+
             const sigContainer = document.getElementById('sigContainer');
             if (officer.sigType === "image") {
-                sigContainer.innerHTML = `<img src="john-sig.png" alt="${officer.name} Signature" style="height: 48px; width: auto; max-width: 210px; display: block; margin: 0;">`;
+                sigContainer.innerHTML = `<img src="john-sig.png" style="height:48px;max-width:210px;">`;
             } else {
-                sigContainer.innerHTML = `<div style="font-family: 'Caveat', cursive; font-size: 32pt; color: #0d233a; line-height: 48px; transform: rotate(-2.5deg);">${officer.name}</div>`;
+                sigContainer.innerHTML = `<div style="font-family:'Caveat',cursive;font-size:32pt;color:#0d233a;transform:rotate(-2.5deg);">${officer.name}</div>`;
             }
-            
-            // Special notice
+
             const realtorLine = document.getElementById('realtorLine');
-            const isDefaultAddress = prop.toUpperCase() === "TBD, TN";
-            
-            if (!isDefaultAddress || agent) {
+            if (prop.toUpperCase() !== "TBD, TN" || agent) {
                 let text = "Special Notice: This pre-approval has been tailored";
-                if (!isDefaultAddress) text += ` for the property at ${prop}`;
+                if (prop.toUpperCase() !== "TBD, TN") text += ` for the property at ${prop}`;
                 if (agent) text += ` in coordination with listing agent ${agent}`;
                 text += ".";
                 realtorLine.innerText = text;
@@ -558,37 +367,129 @@
             } else {
                 realtorLine.style.display = "none";
             }
-            
-            // Switch views
+
             document.getElementById('inputSlide').style.display = 'none';
-            document.getElementById('documentView').style.display = 'flex';
-            window.scrollTo(0, 0);
+            document.getElementById('archiveView').style.display = 'none';
+            document.getElementById('documentView').style.display = 'block';
+            window.scrollTo(0,0);
         }
-        
+
+        function editLetter() {
+            document.getElementById('documentView').style.display = 'none';
+            document.getElementById('inputSlide').style.display = 'block';
+            window.scrollTo(0,0);
+        }
+
+        function resetPortal() {
+            if (confirm("Clear the form and start fresh?")) {
+                localStorage.removeItem('hmsFormState');
+                location.reload();
+            }
+        }
+
+        // ===== ARCHIVES SYSTEM =====
+        function getArchives() {
+            return JSON.parse(localStorage.getItem('hmsArchives') || '[]');
+        }
+
+        function saveToArchives() {
+            const name = document.getElementById('custName').value.trim();
+            if (!name) {
+                alert("Please enter a Borrower Name before saving.");
+                return;
+            }
+            const entry = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString('en-US'),
+                name: toTitleCase(name),
+                program: document.getElementById('program').value,
+                price: document.getElementById('price').value,
+                downAmt: document.getElementById('downAmt').value,
+                downPct: document.getElementById('downPct').value,
+                propAddr: document.getElementById('propAddr').value,
+                agentName: document.getElementById('agentName').value,
+                signatory: document.getElementById('signatory').value
+            };
+            const archives = getArchives();
+            archives.unshift(entry);
+            localStorage.setItem('hmsArchives', JSON.stringify(archives));
+            alert("Saved to Archives!");
+        }
+
+        function saveCurrentLetterToArchives() {
+            saveToArchives();
+            alert("This letter has been saved to Archives.");
+        }
+
+        function showArchives() {
+            const archives = getArchives();
+            const list = document.getElementById('archiveList');
+            
+            if (archives.length === 0) {
+                list.innerHTML = '<p style="text-align:center;color:#64748b;">No saved pre-approvals yet.</p>';
+            } else {
+                list.innerHTML = archives.map((a, i) => `
+                    <div class="archive-item">
+                        <strong>${a.name}</strong><br>
+                        <small>${a.date} • ${a.program} • ${a.price || 'No price'}</small><br>
+                        <div style="display:flex;gap:8px;margin-top:10px;">
+                            <button onclick="loadArchive(${i})" style="flex:1;background:#005a9c;padding:10px;font-size:0.95rem;">Load</button>
+                            <button onclick="deleteArchive(${i})" style="flex:1;background:#dc3545;padding:10px;font-size:0.95rem;">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            document.getElementById('inputSlide').style.display = 'none';
+            document.getElementById('documentView').style.display = 'none';
+            document.getElementById('archiveView').style.display = 'block';
+        }
+
+        function hideArchives() {
+            document.getElementById('archiveView').style.display = 'none';
+            document.getElementById('inputSlide').style.display = 'block';
+        }
+
+        function loadArchive(index) {
+            const archives = getArchives();
+            const a = archives[index];
+            if (!a) return;
+            
+            document.getElementById('custName').value = a.name || '';
+            document.getElementById('program').value = a.program || 'Conventional';
+            document.getElementById('signatory').value = a.signatory || 'john';
+            document.getElementById('price').value = a.price || '';
+            document.getElementById('downAmt').value = a.downAmt || '';
+            document.getElementById('downPct').value = a.downPct || '';
+            document.getElementById('propAddr').value = a.propAddr || 'TBD, TN';
+            document.getElementById('agentName').value = a.agentName || '';
+            
+            saveFormState();
+            updateLiveSummary();
+            hideArchives();
+            alert("Loaded: " + a.name);
+        }
+
+        function deleteArchive(index) {
+            if (!confirm("Delete this saved pre-approval?")) return;
+            const archives = getArchives();
+            archives.splice(index, 1);
+            localStorage.setItem('hmsArchives', JSON.stringify(archives));
+            showArchives();
+        }
+
         function copyToClipboard() {
-            const borrower = document.getElementById('nameOut').innerText;
-            const program = document.getElementById('progOut').innerText;
-            const price = document.getElementById('priceOut').innerText;
-            const loanAmt = document.getElementById('loanOut').innerText;
-            const downPmt = document.getElementById('downOut').innerText;
-            const expiration = document.getElementById('expireOut').innerText;
-            const validId = document.getElementById('validationIdOut').innerText;
-            
-            const clipboardText = `HMS Pre-Approval Summary\n` +
-                                 `Borrower: ${borrower}\n` +
-                                 `Loan Program: ${program}\n` +
-                                 `Purchase Price: ${price}\n` +
-                                 `Loan Amount: ${loanAmt}\n` +
-                                 `Down Payment: ${downPmt}\n` +
-                                 `Valid Until: ${expiration}\n` +
-                                 `${validId}`;
-            
-            navigator.clipboard.writeText(clipboardText).then(() => {
-                alert("Pre-approval summary copied to clipboard!");
-            }).catch(() => {
-                alert("Unable to copy automatically.");
-            });
+            const text = `HMS Pre-Approval Summary\nBorrower: ${document.getElementById('nameOut').innerText}\nProgram: ${document.getElementById('progOut').innerText}\nPrice: ${document.getElementById('priceOut').innerText}\nLoan: ${document.getElementById('loanOut').innerText}\nDown: ${document.getElementById('downOut').innerText}\nValid Until: ${document.getElementById('expireOut').innerText}\n${document.getElementById('validationIdOut').innerText}`;
+            navigator.clipboard.writeText(text).then(() => alert("Copied!"));
         }
+
+        // Start
+        window.onload = function() {
+            loadFormState();
+            if (!document.getElementById('propAddr').value.trim()) {
+                document.getElementById('propAddr').value = "TBD, TN";
+            }
+        };
     </script>
 </body>
 </html>
