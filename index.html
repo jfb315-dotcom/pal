@@ -65,7 +65,7 @@
         <div class="logo-preview"><img src="email-logosmall.png" alt="HMS Logo"></div>
         <h2>Pre-Approval Portal</h2>
         <p style="text-align:center; color:#64748b; margin-top:-8px; margin-bottom:18px; font-size:0.9rem;">
-            Archives sync across phone & desktop via Firebase
+            Archives sync across phone & desktop
         </p>
 
         <div class="input-group">
@@ -196,7 +196,7 @@
     </div>
 
     <script>
-        // ========== FIREBASE SETUP (same project as your golf app) ==========
+        // Firebase (same project as golf app)
         const firebaseConfig = { 
             apiKey: "AIzaSyDnNHVSXJFkd2-Zynp1g9atJMO52CkhZ2w", 
             authDomain: "golf-327be.firebaseapp.com", 
@@ -228,7 +228,6 @@
             return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
         }
 
-        // Local form auto-save (so current work doesn't get lost on refresh)
         function saveFormState() {
             const state = {
                 custName: document.getElementById('custName').value,
@@ -274,7 +273,7 @@
             }
         }
 
-        // Event listeners for live calc + auto-save
+        // Live calculations + auto-save
         document.getElementById('price').addEventListener('input', function() {
             let v = this.value.replace(/,/g,'');
             if (!isNaN(v) && v !== '') this.value = parseFloat(v).toLocaleString('en-US');
@@ -391,7 +390,7 @@
             }
         }
 
-        // ========== FIREBASE ARCHIVES ==========
+        // ===== FIREBASE ARCHIVES (no success popups) =====
         async function saveToArchives() {
             const name = document.getElementById('custName').value.trim();
             if (!name) {
@@ -414,10 +413,10 @@
 
             try {
                 await db.collection('hms_preapprovals').add(entry);
-                alert("Saved to Archives! It will now appear on all your devices.");
+                // No success alert
             } catch (err) {
                 console.error(err);
-                alert("Error saving to Archives. Check your internet connection.");
+                alert("Error saving. Check your internet connection.");
             }
         }
 
@@ -425,7 +424,7 @@
             document.getElementById('inputSlide').style.display = 'none';
             document.getElementById('documentView').style.display = 'none';
             document.getElementById('archiveView').style.display = 'block';
-            document.getElementById('archiveStatus').innerText = "Loading archives...";
+            document.getElementById('archiveStatus').innerText = "Loading...";
             document.getElementById('archiveList').innerHTML = "";
 
             try {
@@ -443,11 +442,11 @@
                 let html = "";
                 snapshot.forEach(doc => {
                     const a = doc.data();
-                    const dateStr = a.createdAtLocal || (a.createdAt ? a.createdAt.toDate().toLocaleDateString('en-US') : 'Unknown date');
+                    const dateStr = a.createdAtLocal || (a.createdAt ? a.createdAt.toDate().toLocaleDateString('en-US') : '');
                     html += `
                         <div class="archive-item">
                             <strong>${a.name}</strong><br>
-                            <small>${dateStr} • ${a.program} • ${a.price || 'No price'}</small><br>
+                            <small>${dateStr} • ${a.program} • ${a.price || ''}</small><br>
                             <div style="display:flex;gap:8px;margin-top:10px;">
                                 <button onclick="loadArchive('${doc.id}')" style="flex:1;background:#005a9c;padding:10px;font-size:0.95rem;">Load</button>
                                 <button onclick="deleteArchive('${doc.id}')" style="flex:1;background:#dc3545;padding:10px;font-size:0.95rem;">Delete</button>
@@ -458,7 +457,7 @@
                 document.getElementById('archiveList').innerHTML = html;
             } catch (err) {
                 console.error(err);
-                document.getElementById('archiveStatus').innerText = "Error loading archives. Check internet connection.";
+                document.getElementById('archiveStatus').innerText = "Error loading archives.";
             }
         }
 
@@ -470,10 +469,7 @@
         async function loadArchive(docId) {
             try {
                 const doc = await db.collection('hms_preapprovals').doc(docId).get();
-                if (!doc.exists) {
-                    alert("This record no longer exists.");
-                    return;
-                }
+                if (!doc.exists) return;
                 const a = doc.data();
                 
                 document.getElementById('custName').value = a.name || '';
@@ -488,7 +484,7 @@
                 saveFormState();
                 updateLiveSummary();
                 hideArchives();
-                alert("Loaded: " + a.name);
+                // No success alert
             } catch (err) {
                 alert("Error loading record.");
             }
@@ -498,7 +494,7 @@
             if (!confirm("Delete this saved pre-approval?")) return;
             try {
                 await db.collection('hms_preapprovals').doc(docId).delete();
-                showArchives(); // refresh list
+                showArchives();
             } catch (err) {
                 alert("Error deleting.");
             }
@@ -506,10 +502,9 @@
 
         function copyToClipboard() {
             const text = `HMS Pre-Approval Summary\nBorrower: ${document.getElementById('nameOut').innerText}\nProgram: ${document.getElementById('progOut').innerText}\nPrice: ${document.getElementById('priceOut').innerText}\nLoan: ${document.getElementById('loanOut').innerText}\nDown: ${document.getElementById('downOut').innerText}\nValid Until: ${document.getElementById('expireOut').innerText}\n${document.getElementById('validationIdOut').innerText}`;
-            navigator.clipboard.writeText(text).then(() => alert("Copied!"));
+            navigator.clipboard.writeText(text);
         }
 
-        // Start
         window.onload = function() {
             loadFormState();
             if (!document.getElementById('propAddr').value.trim()) {
