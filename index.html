@@ -114,7 +114,7 @@
                 <input type="text" id="propAddr" value="TBD, TN">
             </div>
             <div class="input-group">
-                <label>Listing Agent (Optional)</label>
+                <label>Realtor (Optional)</label>
                 <input type="text" id="agentName" placeholder="Agent Name">
             </div>
         </div>
@@ -149,7 +149,7 @@
                     <div><strong>Purchase Price:</strong> <span id="priceOut"></span></div>
                     <div><strong>Loan Amount:</strong> <span id="loanOut"></span></div>
                     <div><strong>Down Payment:</strong> <span id="downOut"></span></div>
-                    <div><strong>LTV Percentage:</strong> <span id="ltvOut"></span></div>
+                    <div><strong>Realtor:</strong> <span id="agentOut"></span></div>
                     <div class="re-full"><strong>Property Address:</strong> <span id="propOut"></span></div>
                 </div>
                 
@@ -331,7 +331,6 @@
 
             const officer = officers[sigKey];
             const loanAmt = price - downAmt;
-            const ltv = ((loanAmt / price) * 100).toFixed(2);
             const today = new Date();
             const expiry = new Date();
             expiry.setDate(today.getDate() + 90);
@@ -344,11 +343,10 @@
             document.getElementById('priceOut').innerText = formatCurrency(price);
             document.getElementById('loanOut').innerText = formatCurrency(loanAmt);
             document.getElementById('downOut').innerText = formatCurrency(downAmt) + " (" + downPct + "%)";
-            document.getElementById('ltvOut').innerText = ltv + "%";
+            document.getElementById('agentOut').innerText = agent || "—";
             document.getElementById('propOut').innerText = prop;
             document.getElementById('validationIdOut').innerText = stampId;
 
-            // Updated header - shows the selected officer's real phone number
             document.getElementById('headerPhone').innerText = officer.phone;
             document.getElementById('headerEmail').innerText = officer.email;
             
