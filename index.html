@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,6 +44,15 @@
         .filter-bar { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
         .filter-btn { flex: 1; min-width: 70px; padding: 10px 6px; font-size: 0.9rem; background: #e2e8f0; color: #334155; border-radius: 8px; border: none; font-weight: 600; }
         .filter-btn.active { background: var(--primary); color: white; }
+
+        .top-clear-btn {
+            background: #6c757d;
+            color: white;
+            padding: 10px;
+            font-size: 0.95rem;
+            margin-bottom: 18px;
+            border-radius: 8px;
+        }
         
         @media print {
             @page { size: letter portrait; margin: 0.25in; }
@@ -66,9 +76,12 @@
     <div class="slide-card no-print" id="inputSlide">
         <div class="logo-preview"><img src="email-logosmall.png" alt="HMS Logo"></div>
         <h2>Pre-Approval Portal</h2>
-        <p style="text-align:center; color:#64748b; margin-top:-8px; margin-bottom:18px; font-size:0.9rem;">
+        <p style="text-align:center; color:#64748b; margin-top:-8px; margin-bottom:12px; font-size:0.9rem;">
             Archives sync across phone & desktop
         </p>
+
+        <!-- NEW CLEAR BUTTON AT THE TOP -->
+        <button class="top-clear-btn" onclick="resetPortal()">🔄 Start New Letter / Clear Form</button>
 
         <div class="input-group">
             <label>Borrower Name <span style="color:#e11d48;">*</span></label>
@@ -129,8 +142,6 @@
             <button onclick="saveToArchives()" style="background:#28a745;">💾 Save to Archives</button>
             <button onclick="showArchives()" style="background:#6f42c1;">📁 View Archives</button>
         </div>
-        
-        <button onclick="resetPortal()" style="background:#6c757d; margin-top:10px;">🔄 Clear Form</button>
     </div>
     
     <div id="documentView">
@@ -394,7 +405,7 @@
         }
 
         function resetPortal() {
-            if (confirm("Clear the form and start fresh?")) {
+            if (confirm("Clear everything and start a new letter?")) {
                 localStorage.removeItem('hmsFormState');
                 location.reload();
             }
@@ -430,11 +441,8 @@
 
         function setArchiveFilter(filter) {
             currentArchiveFilter = filter;
-            
-            // Update button styles
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('filter-' + filter).classList.add('active');
-            
             renderArchiveList();
         }
 
@@ -494,7 +502,6 @@
                     allArchiveDocs.push({ id: doc.id, data: doc.data() });
                 });
 
-                // Default to current signatory if possible
                 const currentOfficer = document.getElementById('signatory').value;
                 setArchiveFilter(currentOfficer || 'all');
                 
@@ -536,7 +543,6 @@
             if (!confirm("Delete this saved pre-approval?")) return;
             try {
                 await db.collection('hms_preapprovals').doc(docId).delete();
-                // Remove from local array and re-render
                 allArchiveDocs = allArchiveDocs.filter(d => d.id !== docId);
                 renderArchiveList();
             } catch (err) {
