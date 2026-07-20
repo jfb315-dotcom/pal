@@ -6,7 +6,6 @@
     <title>HMS Pre-Approval Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
     
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -60,7 +59,6 @@
 </head>
 <body>
 
-    <!-- ========== INPUT FORM ========== -->
     <div class="slide-card no-print" id="inputSlide">
         <div class="logo-preview"><img src="email-logosmall.png" alt="HMS Logo"></div>
         <h2>Pre-Approval Portal</h2>
@@ -131,14 +129,13 @@
         <button onclick="resetPortal()" style="background:#6c757d; margin-top:10px;">🔄 Clear Form</button>
     </div>
     
-    <!-- ========== LETTER VIEW ========== -->
     <div id="documentView">
         <div id="letterWrapper">
             <div class="header">
                 <img src="email-logosmall.png" alt="Home Mortgage Solutions LLC">
                 <div class="contact-info">
                     31 Mouse Creek Road NW &bull; Cleveland, TN 37312<br>
-                    Office: (423) 555-0199 &bull; Email: <span id="headerEmail"></span>
+                    Phone: <span id="headerPhone"></span> &bull; Email: <span id="headerEmail"></span>
                 </div>
             </div>
             <div class="letter-content">
@@ -187,7 +184,6 @@
         </div>
     </div>
 
-    <!-- ========== ARCHIVES VIEW ========== -->
     <div id="archiveView" class="slide-card no-print">
         <h2>Saved Pre-Approvals</h2>
         <p id="archiveStatus" style="text-align:center; color:#64748b; font-size:0.9rem;">Loading...</p>
@@ -196,7 +192,6 @@
     </div>
 
     <script>
-        // Firebase (same project as golf app)
         const firebaseConfig = { 
             apiKey: "AIzaSyDnNHVSXJFkd2-Zynp1g9atJMO52CkhZ2w", 
             authDomain: "golf-327be.firebaseapp.com", 
@@ -273,7 +268,6 @@
             }
         }
 
-        // Live calculations + auto-save
         document.getElementById('price').addEventListener('input', function() {
             let v = this.value.replace(/,/g,'');
             if (!isNaN(v) && v !== '') this.value = parseFloat(v).toLocaleString('en-US');
@@ -354,7 +348,10 @@
             document.getElementById('propOut').innerText = prop;
             document.getElementById('validationIdOut').innerText = stampId;
 
+            // Updated header - shows the selected officer's real phone number
+            document.getElementById('headerPhone').innerText = officer.phone;
             document.getElementById('headerEmail').innerText = officer.email;
+            
             document.getElementById('sigName').innerText = officer.name;
             document.getElementById('sigTitle').innerText = officer.title;
             document.getElementById('sigEmail').innerText = officer.email;
@@ -390,7 +387,6 @@
             }
         }
 
-        // ===== FIREBASE ARCHIVES (no success popups) =====
         async function saveToArchives() {
             const name = document.getElementById('custName').value.trim();
             if (!name) {
@@ -413,7 +409,6 @@
 
             try {
                 await db.collection('hms_preapprovals').add(entry);
-                // No success alert
             } catch (err) {
                 console.error(err);
                 alert("Error saving. Check your internet connection.");
@@ -484,7 +479,6 @@
                 saveFormState();
                 updateLiveSummary();
                 hideArchives();
-                // No success alert
             } catch (err) {
                 alert("Error loading record.");
             }
