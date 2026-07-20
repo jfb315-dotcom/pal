@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HMS Pre-Approval Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <style>
         :root { --primary: #005a9c; --bg: #f0f2f5; --text: #1a202c; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; justify-content: center; min-height: 100vh; }
@@ -60,7 +65,7 @@
         <div class="logo-preview"><img src="email-logosmall.png" alt="HMS Logo"></div>
         <h2>Pre-Approval Portal</h2>
         <p style="text-align:center; color:#64748b; margin-top:-8px; margin-bottom:18px; font-size:0.9rem;">
-            Form auto-saves • You can also manually save to Archives
+            Archives sync across phone & desktop via Firebase
         </p>
 
         <div class="input-group">
@@ -152,7 +157,6 @@
                 </div>
                 
                 <p>This letter serves as formal confirmation that the borrower(s) listed above have been pre-approved for residential financing through <strong>Home Mortgage Solutions LLC</strong>.</p>
-                <p id="realtorLine" style="display:none; font-style: italic; background:#fcfcfc; padding:5px; border:1px dashed #cbd5e0;"></p>
                 <p>Please note that final loan approval remains strictly subject to the receipt and underwriting satisfaction of a fully executed purchase contract and all applicable addendums, an acceptable property appraisal report, a clear title report, satisfactory property insurance policies, and the timely submission of all remaining background documentation requested for final underwriting sign-off.</p>
                 <p>This Pre‐Approval does not constitute a final loan approval, a commitment to lend or a guarantee of interest rate, and should be considered a preliminary assessment of the applicant's ability to obtain a mortgage loan based on the current underwriting guidelines in place for the loan program requested.</p>
                 <p>Once a purchase contract has been fully executed we will submit the collected documentation necessary to obtain loan approval from underwriting.</p>
@@ -178,7 +182,7 @@
             <button style="background:#28a745;" onclick="window.print()">🖨️ Print / Save as PDF</button>
             <button style="background:#007bff;" onclick="copyToClipboard()">📋 Copy Text Summary</button>
             <button style="background:#17a2b8;" onclick="editLetter()">✏️ Edit / Change Details</button>
-            <button style="background:#28a745;" onclick="saveCurrentLetterToArchives()">💾 Save This Letter to Archives</button>
+            <button style="background:#28a745;" onclick="saveToArchives()">💾 Save This Letter to Archives</button>
             <button style="background:#6c757d;" onclick="resetPortal()">🔄 Start New Letter</button>
         </div>
     </div>
@@ -186,11 +190,25 @@
     <!-- ========== ARCHIVES VIEW ========== -->
     <div id="archiveView" class="slide-card no-print">
         <h2>Saved Pre-Approvals</h2>
+        <p id="archiveStatus" style="text-align:center; color:#64748b; font-size:0.9rem;">Loading...</p>
         <div id="archiveList"></div>
         <button onclick="hideArchives()" style="background:#6c757d; margin-top:20px;">← Back to Form</button>
     </div>
 
     <script>
+        // ========== FIREBASE SETUP (same project as your golf app) ==========
+        const firebaseConfig = { 
+            apiKey: "AIzaSyDnNHVSXJFkd2-Zynp1g9atJMO52CkhZ2w", 
+            authDomain: "golf-327be.firebaseapp.com", 
+            projectId: "golf-327be", 
+            storageBucket: "golf-327be.firebasestorage.app", 
+            messagingSenderId: "481710804257", 
+            appId: "1:481710804257:web:84ab3594fcc80b7affc260" 
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         const officers = {
             john: { name: "John Bischof", email: "john@hmsloan.com", phone: "(423) 505-9811", title: "Mortgage Broker / Owner", nmls: "", sigType: "image" },
             darrell: { name: "Darrell Whitaker", email: "darrell@hmsloan.com", phone: "(423) 505-1376", title: "Mortgage Broker / Owner", nmls: "", sigType: "text" },
@@ -210,6 +228,7 @@
             return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
         }
 
+        // Local form auto-save (so current work doesn't get lost on refresh)
         function saveFormState() {
             const state = {
                 custName: document.getElementById('custName').value,
@@ -255,7 +274,7 @@
             }
         }
 
-        // Auto calculations + saving
+        // Event listeners for live calc + auto-save
         document.getElementById('price').addEventListener('input', function() {
             let v = this.value.replace(/,/g,'');
             if (!isNaN(v) && v !== '') this.value = parseFloat(v).toLocaleString('en-US');
@@ -281,11 +300,8 @@
             saveFormState();
         });
         document.getElementById('program').addEventListener('change', function() {
-            if (this.value === 'VA' || this.value === 'USDA') {
-                document.getElementById('downPct').value = 0;
-            } else if (this.value === 'FHA') {
-                document.getElementById('downPct').value = 3.5;
-            }
+            if (this.value === 'VA' || this.value === 'USDA') document.getElementById('downPct').value = 0;
+            else if (this.value === 'FHA') document.getElementById('downPct').value = 3.5;
             document.getElementById('downPct').dispatchEvent(new Event('input'));
             saveFormState();
         });
@@ -356,18 +372,6 @@
                 sigContainer.innerHTML = `<div style="font-family:'Caveat',cursive;font-size:32pt;color:#0d233a;transform:rotate(-2.5deg);">${officer.name}</div>`;
             }
 
-            const realtorLine = document.getElementById('realtorLine');
-            if (prop.toUpperCase() !== "TBD, TN" || agent) {
-                let text = "Special Notice: This pre-approval has been tailored";
-                if (prop.toUpperCase() !== "TBD, TN") text += ` for the property at ${prop}`;
-                if (agent) text += ` in coordination with listing agent ${agent}`;
-                text += ".";
-                realtorLine.innerText = text;
-                realtorLine.style.display = "block";
-            } else {
-                realtorLine.style.display = "none";
-            }
-
             document.getElementById('inputSlide').style.display = 'none';
             document.getElementById('archiveView').style.display = 'none';
             document.getElementById('documentView').style.display = 'block';
@@ -387,62 +391,75 @@
             }
         }
 
-        // ===== ARCHIVES SYSTEM =====
-        function getArchives() {
-            return JSON.parse(localStorage.getItem('hmsArchives') || '[]');
-        }
-
-        function saveToArchives() {
+        // ========== FIREBASE ARCHIVES ==========
+        async function saveToArchives() {
             const name = document.getElementById('custName').value.trim();
             if (!name) {
                 alert("Please enter a Borrower Name before saving.");
                 return;
             }
+
             const entry = {
-                id: Date.now(),
-                date: new Date().toLocaleDateString('en-US'),
                 name: toTitleCase(name),
                 program: document.getElementById('program').value,
                 price: document.getElementById('price').value,
                 downAmt: document.getElementById('downAmt').value,
                 downPct: document.getElementById('downPct').value,
-                propAddr: document.getElementById('propAddr').value,
+                propAddr: document.getElementById('propAddr').value || "TBD, TN",
                 agentName: document.getElementById('agentName').value,
-                signatory: document.getElementById('signatory').value
+                signatory: document.getElementById('signatory').value,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                createdAtLocal: new Date().toLocaleString('en-US')
             };
-            const archives = getArchives();
-            archives.unshift(entry);
-            localStorage.setItem('hmsArchives', JSON.stringify(archives));
-            alert("Saved to Archives!");
-        }
 
-        function saveCurrentLetterToArchives() {
-            saveToArchives();
-            alert("This letter has been saved to Archives.");
-        }
-
-        function showArchives() {
-            const archives = getArchives();
-            const list = document.getElementById('archiveList');
-            
-            if (archives.length === 0) {
-                list.innerHTML = '<p style="text-align:center;color:#64748b;">No saved pre-approvals yet.</p>';
-            } else {
-                list.innerHTML = archives.map((a, i) => `
-                    <div class="archive-item">
-                        <strong>${a.name}</strong><br>
-                        <small>${a.date} • ${a.program} • ${a.price || 'No price'}</small><br>
-                        <div style="display:flex;gap:8px;margin-top:10px;">
-                            <button onclick="loadArchive(${i})" style="flex:1;background:#005a9c;padding:10px;font-size:0.95rem;">Load</button>
-                            <button onclick="deleteArchive(${i})" style="flex:1;background:#dc3545;padding:10px;font-size:0.95rem;">Delete</button>
-                        </div>
-                    </div>
-                `).join('');
+            try {
+                await db.collection('hms_preapprovals').add(entry);
+                alert("Saved to Archives! It will now appear on all your devices.");
+            } catch (err) {
+                console.error(err);
+                alert("Error saving to Archives. Check your internet connection.");
             }
-            
+        }
+
+        async function showArchives() {
             document.getElementById('inputSlide').style.display = 'none';
             document.getElementById('documentView').style.display = 'none';
             document.getElementById('archiveView').style.display = 'block';
+            document.getElementById('archiveStatus').innerText = "Loading archives...";
+            document.getElementById('archiveList').innerHTML = "";
+
+            try {
+                const snapshot = await db.collection('hms_preapprovals')
+                    .orderBy('createdAt', 'desc')
+                    .limit(50)
+                    .get();
+
+                if (snapshot.empty) {
+                    document.getElementById('archiveStatus').innerText = "No saved pre-approvals yet.";
+                    return;
+                }
+
+                document.getElementById('archiveStatus').innerText = "";
+                let html = "";
+                snapshot.forEach(doc => {
+                    const a = doc.data();
+                    const dateStr = a.createdAtLocal || (a.createdAt ? a.createdAt.toDate().toLocaleDateString('en-US') : 'Unknown date');
+                    html += `
+                        <div class="archive-item">
+                            <strong>${a.name}</strong><br>
+                            <small>${dateStr} • ${a.program} • ${a.price || 'No price'}</small><br>
+                            <div style="display:flex;gap:8px;margin-top:10px;">
+                                <button onclick="loadArchive('${doc.id}')" style="flex:1;background:#005a9c;padding:10px;font-size:0.95rem;">Load</button>
+                                <button onclick="deleteArchive('${doc.id}')" style="flex:1;background:#dc3545;padding:10px;font-size:0.95rem;">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                document.getElementById('archiveList').innerHTML = html;
+            } catch (err) {
+                console.error(err);
+                document.getElementById('archiveStatus').innerText = "Error loading archives. Check internet connection.";
+            }
         }
 
         function hideArchives() {
@@ -450,32 +467,41 @@
             document.getElementById('inputSlide').style.display = 'block';
         }
 
-        function loadArchive(index) {
-            const archives = getArchives();
-            const a = archives[index];
-            if (!a) return;
-            
-            document.getElementById('custName').value = a.name || '';
-            document.getElementById('program').value = a.program || 'Conventional';
-            document.getElementById('signatory').value = a.signatory || 'john';
-            document.getElementById('price').value = a.price || '';
-            document.getElementById('downAmt').value = a.downAmt || '';
-            document.getElementById('downPct').value = a.downPct || '';
-            document.getElementById('propAddr').value = a.propAddr || 'TBD, TN';
-            document.getElementById('agentName').value = a.agentName || '';
-            
-            saveFormState();
-            updateLiveSummary();
-            hideArchives();
-            alert("Loaded: " + a.name);
+        async function loadArchive(docId) {
+            try {
+                const doc = await db.collection('hms_preapprovals').doc(docId).get();
+                if (!doc.exists) {
+                    alert("This record no longer exists.");
+                    return;
+                }
+                const a = doc.data();
+                
+                document.getElementById('custName').value = a.name || '';
+                document.getElementById('program').value = a.program || 'Conventional';
+                document.getElementById('signatory').value = a.signatory || 'john';
+                document.getElementById('price').value = a.price || '';
+                document.getElementById('downAmt').value = a.downAmt || '';
+                document.getElementById('downPct').value = a.downPct || '';
+                document.getElementById('propAddr').value = a.propAddr || 'TBD, TN';
+                document.getElementById('agentName').value = a.agentName || '';
+                
+                saveFormState();
+                updateLiveSummary();
+                hideArchives();
+                alert("Loaded: " + a.name);
+            } catch (err) {
+                alert("Error loading record.");
+            }
         }
 
-        function deleteArchive(index) {
+        async function deleteArchive(docId) {
             if (!confirm("Delete this saved pre-approval?")) return;
-            const archives = getArchives();
-            archives.splice(index, 1);
-            localStorage.setItem('hmsArchives', JSON.stringify(archives));
-            showArchives();
+            try {
+                await db.collection('hms_preapprovals').doc(docId).delete();
+                showArchives(); // refresh list
+            } catch (err) {
+                alert("Error deleting.");
+            }
         }
 
         function copyToClipboard() {
