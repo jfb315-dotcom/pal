@@ -24,14 +24,20 @@
         
         #documentView, #archiveView { display: none; width: 100%; max-width: 600px; }
         #letterWrapper { background: white; width: 100%; padding: 25px 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); border-radius: 12px; box-sizing: border-box; }
-        .letter-content { font-family: 'Times New Roman', Times, serif; font-size: 11.5pt; line-height: 1.45; text-align: justify; }
-        .header { text-align: center; border-bottom: 2px solid var(--primary); margin-bottom: 18px; padding-bottom: 8px; }
-        .header img { width: 115px; height: auto; }
-        .contact-info { font-size: 9.5pt; color: #444; margin-top: 4px; }
-        .re-box { background: #f8f9fa; padding: 11px 12px; border-left: 4px solid var(--primary); margin: 14px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; font-size: 10.3pt; }
+        /* Letter sizes are multiplied by --s: 1 on screen, smaller when printing so the letter fits one page (see fitLetterToPage). */
+        .letter-content { font-family: 'Times New Roman', Times, serif; font-size: calc(11.5pt * var(--s, 1)); line-height: 1.45; text-align: justify; }
+        .header { text-align: center; border-bottom: 2px solid var(--primary); margin-bottom: calc(18px * var(--s, 1)); padding-bottom: calc(8px * var(--s, 1)); }
+        .header img { width: calc(115px * var(--s, 1)); height: auto; }
+        .contact-info { font-size: calc(9.5pt * var(--s, 1)); color: #444; margin-top: calc(4px * var(--s, 1)); }
+        .re-title { text-align: center; font-size: calc(11pt * var(--s, 1)); margin-bottom: calc(9px * var(--s, 1)); }
+        .re-box { background: #f8f9fa; padding: calc(11px * var(--s, 1)) calc(12px * var(--s, 1)); border-left: 4px solid var(--primary); margin: calc(14px * var(--s, 1)) 0; display: grid; grid-template-columns: 1fr 1fr; gap: calc(7px * var(--s, 1)); font-size: calc(10.3pt * var(--s, 1)); }
         .re-full { grid-column: 1 / -1; }
-        .sig-block { margin-top: 22px; }
-        .cert-id { font-size: 8pt; color: #a0aec0; text-align: center; margin-top: 22px; font-family: monospace; }
+        .sig-block { margin-top: calc(22px * var(--s, 1)); }
+        #sigContainer { margin: calc(8px * var(--s, 1)) 0; }
+        .sig-img { height: calc(48px * var(--s, 1)); max-width: calc(210px * var(--s, 1)); }
+        .sig-script { font-family: 'Caveat', cursive; font-size: calc(32pt * var(--s, 1)); color: #0d233a; transform: rotate(-2.5deg); }
+        .sig-line { width: calc(250px * var(--s, 1)); border-top: 1px solid #000; padding-top: calc(3px * var(--s, 1)); }
+        .cert-id { font-size: calc(8pt * var(--s, 1)); color: #a0aec0; text-align: center; margin-top: calc(22px * var(--s, 1)); font-family: monospace; }
         
         .action-btn-container { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; width: 100%; }
         .action-btn-container button { margin: 0; }
@@ -63,7 +69,7 @@
             .no-print, #inputSlide, #archiveView, .action-btn-container { display: none !important; }
             #documentView { display: block !important; width: 100% !important; max-width: none !important; padding: 0 !important; margin: 0 !important; }
             #letterWrapper { box-shadow: none !important; padding: 0 !important; border-radius: 0 !important; margin: 0 !important;
-                             zoom: var(--print-fit, 1); width: calc(7in / var(--print-fit, 1)) !important; }
+                             width: 7in !important; max-width: 100% !important; --s: var(--print-fit, 1); }
         }
     </style>
 </head>
@@ -156,7 +162,7 @@
             <div class="letter-content">
                 <p style="text-align: right;"><strong id="dateOut"></strong></p>
                 <p>To Whom It May Concern,</p>
-                <p style="text-align: center; font-size: 11pt; margin-bottom: 9px;"><strong>RE: MORTGAGE PRE-APPROVAL FINANCING</strong></p>
+                <p class="re-title"><strong>RE: MORTGAGE PRE-APPROVAL FINANCING</strong></p>
                 
                 <div class="re-box">
                     <div><strong>Borrower:</strong> <span id="nameOut"></span></div>
@@ -178,8 +184,8 @@
                 
                 <div class="sig-block">
                     Sincerely,<br>
-                    <div id="sigContainer" style="margin:8px 0;"></div>
-                    <div style="width:250px; border-top:1px solid #000; padding-top:3px;">
+                    <div id="sigContainer"></div>
+                    <div class="sig-line">
                         <strong id="sigName"></strong><br>
                         <span id="sigTitle"></span><br>
                         Home Mortgage Solutions LLC<br>
@@ -229,8 +235,8 @@
         const db = firebase.firestore();
 
         const officers = {
-            john: { name: "John Bischof", email: "john@hmsloan.com", phone: "(423) 505-9811", title: "Mortgage Broker / Owner", nmls: "", sigType: "image" },
-            darrell: { name: "Darrell Whitaker", email: "darrell@hmsloan.com", phone: "(423) 505-1376", title: "Mortgage Broker / Owner", nmls: "", sigType: "text" },
+            john: { name: "John Bischof", email: "john@hmsloan.com", phone: "(423) 505-9811", title: "Mortgage Broker / Owner", nmls: "NMLS #165831", sigType: "image" },
+            darrell: { name: "Darrell Whitaker", email: "darrell@hmsloan.com", phone: "(423) 505-1376", title: "Mortgage Broker / Owner", nmls: "NMLS #168727", sigType: "text" },
             kristie: { name: "Kristie Bruce", email: "processor@hmsloan.com", phone: "(423) 339-8086 ext. 4", title: "Loan Officer", nmls: "NMLS #163760", sigType: "text" }
         };
 
@@ -415,9 +421,9 @@
 
             const sigContainer = document.getElementById('sigContainer');
             if (officer.sigType === "image") {
-                sigContainer.innerHTML = `<img src="john-sig.png" style="height:48px;max-width:210px;">`;
+                sigContainer.innerHTML = `<img src="john-sig.png" class="sig-img" alt="">`;
             } else {
-                sigContainer.innerHTML = `<div style="font-family:'Caveat',cursive;font-size:32pt;color:#0d233a;transform:rotate(-2.5deg);">${officer.name}</div>`;
+                sigContainer.innerHTML = `<div class="sig-script">${officer.name}</div>`;
             }
 
             document.getElementById('inputSlide').style.display = 'none';
@@ -431,18 +437,21 @@
         }
 
         // Printable area of a letter page with the @page margins above (8.5x11in minus 0.75in sides, 0.6in top/bottom), in CSS px.
+        // iPhone/iPad Safari may use its own print margins, so leave it more room.
+        const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
         const PRINT_WIDTH = (8.5 - 1.5) * 96;
-        const PRINT_HEIGHT = (11 - 1.2) * 96 - 12; // small safety allowance
+        const PRINT_HEIGHT = (IS_IOS ? 9.0 : 9.65) * 96;
 
-        // Lay the letter out at print width and work out how much (if at all) it must be
-        // scaled down to fit on one page. Shrinking also makes the lines wider, so test widths too.
+        // Lay the letter out at print width and find how much (if at all) its sizes must be
+        // scaled down to fit on one page. Scales font and spacing sizes rather than using CSS zoom,
+        // which iPhone Safari ignores.
         function fitLetterToPage() {
             const src = document.getElementById('letterWrapper');
             const probe = src.cloneNode(true);
             probe.removeAttribute('id');
-            probe.style.cssText = 'position:absolute; left:-10000px; top:0; visibility:hidden; padding:0; box-shadow:none; border-radius:0;';
+            probe.style.cssText = `position:absolute; left:-10000px; top:0; visibility:hidden; padding:0; box-shadow:none; border-radius:0; width:${PRINT_WIDTH}px;`;
             document.body.appendChild(probe);
-            const fits = z => { probe.style.width = (PRINT_WIDTH / z) + 'px'; return probe.offsetHeight * z <= PRINT_HEIGHT; };
+            const fits = z => { probe.style.setProperty('--s', z); return probe.offsetHeight <= PRINT_HEIGHT; };
             let fit = 1;
             if (!fits(1)) {
                 let lo = 0.6, hi = 1;
