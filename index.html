@@ -26,7 +26,7 @@
         #letterWrapper { background: white; width: 100%; padding: 25px 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); border-radius: 12px; box-sizing: border-box; }
         .letter-content { font-family: 'Times New Roman', Times, serif; font-size: 11.5pt; line-height: 1.45; text-align: justify; }
         .header { text-align: center; border-bottom: 2px solid var(--primary); margin-bottom: 18px; padding-bottom: 8px; }
-        .header img { width: 115px; }
+        .header img { width: 115px; height: auto; }
         .contact-info { font-size: 9.5pt; color: #444; margin-top: 4px; }
         .re-box { background: #f8f9fa; padding: 11px 12px; border-left: 4px solid var(--primary); margin: 14px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; font-size: 10.3pt; }
         .re-full { grid-column: 1 / -1; }
@@ -54,19 +54,16 @@
         }
         
         @media print {
-            @page { size: letter portrait; margin: 0.25in; }
+            /* Real letter margins. The letter keeps its on-screen look and is scaled
+               down only as much as needed to stay on one page (see fitLetterToPage). */
+            @page { size: letter portrait; margin: 0.6in 0.75in; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            html, body { background: white !important; height: 100% !important; max-height: 10.3in !important; margin: 0 !important; padding: 0 !important; overflow: hidden !important; }
+            html, body { background: white !important; margin: 0 !important; padding: 0 !important; }
+            body { display: block !important; min-height: 0 !important; }
             .no-print, #inputSlide, #archiveView, .action-btn-container { display: none !important; }
-            #documentView { display: block !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
-            #letterWrapper { box-shadow: none !important; padding: 0 !important; border-radius: 0 !important; width: 100% !important; margin: 0 !important; }
-            .letter-content { font-size: 10pt !important; line-height: 1.28 !important; }
-            p { margin-bottom: 7px !important; }
-            .header { margin-bottom: 8px !important; padding-bottom: 4px !important; }
-            .header img { width: 95px !important; }
-            .re-box { margin: 8px 0 !important; padding: 7px 10px !important; font-size: 9.2pt !important; }
-            .sig-block { margin-top: 12px !important; }
-            .cert-id { margin-top: 12px !important; font-size: 7pt !important; }
+            #documentView { display: block !important; width: 100% !important; max-width: none !important; padding: 0 !important; margin: 0 !important; }
+            #letterWrapper { box-shadow: none !important; padding: 0 !important; border-radius: 0 !important; margin: 0 !important;
+                             zoom: var(--print-fit, 1); width: calc(7in / var(--print-fit, 1)) !important; }
         }
     </style>
 </head>
@@ -134,6 +131,11 @@
             </div>
         </div>
         
+        <div class="input-group">
+            <label>Additional Requirement (Optional)</label>
+            <input type="text" id="extraReq" maxlength="300" placeholder="e.g. Verification of sale of current home">
+        </div>
+
         <button onclick="generateLetter()">Generate Automated Letter</button>
         
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px;">
@@ -145,7 +147,7 @@
     <div id="documentView">
         <div id="letterWrapper">
             <div class="header">
-                <img src="email-logosmall.png" alt="Home Mortgage Solutions LLC">
+                <img src="email-logosmall.png" width="290" height="136" alt="Home Mortgage Solutions LLC">
                 <div class="contact-info">
                     31 Mouse Creek Road NW &bull; Cleveland, TN 37312<br>
                     Phone: <span id="headerPhone"></span> &bull; Email: <span id="headerEmail"></span>
@@ -168,6 +170,7 @@
                 
                 <p>This letter serves as formal confirmation that the borrower(s) listed above have been pre-approved for residential financing through <strong>Home Mortgage Solutions LLC</strong>.</p>
                 <p>Please note that final loan approval remains strictly subject to the receipt and underwriting satisfaction of a fully executed purchase contract and all applicable addendums, an acceptable property appraisal report, a clear title report, satisfactory property insurance policies, and the timely submission of all remaining background documentation requested for final underwriting sign-off.</p>
+                <p id="extraReqP" style="display:none;"><strong>Additional Requirement:</strong> <span id="extraReqOut"></span></p>
                 <p>This Pre‐Approval does not constitute a final loan approval, a commitment to lend or a guarantee of interest rate, and should be considered a preliminary assessment of the applicant's ability to obtain a mortgage loan based on the current underwriting guidelines in place for the loan program requested.</p>
                 <p>Once a purchase contract has been fully executed we will submit the collected documentation necessary to obtain loan approval from underwriting.</p>
                 <p>It is my privilege to assist you with your home financing needs. I realize there are many lenders to choose from and I appreciate you have selected my company. It is my goal that you receive unparalleled customer service throughout your process and after. If you should have any questions, please feel free to contact me at <span id="contactCallout"></span>. I look forward to working with you.</p>
@@ -274,7 +277,8 @@
                 downAmt: document.getElementById('downAmt').value,
                 downPct: document.getElementById('downPct').value,
                 propAddr: document.getElementById('propAddr').value,
-                agentName: document.getElementById('agentName').value
+                agentName: document.getElementById('agentName').value,
+                extraReq: document.getElementById('extraReq').value
             };
             localStorage.setItem('hmsFormState', JSON.stringify(state));
         }
@@ -292,6 +296,7 @@
                 if (s.downPct) document.getElementById('downPct').value = s.downPct;
                 if (s.propAddr) document.getElementById('propAddr').value = s.propAddr;
                 if (s.agentName) document.getElementById('agentName').value = s.agentName;
+                if (s.extraReq) document.getElementById('extraReq').value = s.extraReq;
                 updateLiveSummary();
             } catch(e) {}
         }
@@ -340,7 +345,7 @@
             document.getElementById('downPct').dispatchEvent(new Event('input'));
             saveFormState();
         });
-        ['custName','signatory','propAddr','agentName'].forEach(id => {
+        ['custName','signatory','propAddr','agentName','extraReq'].forEach(id => {
             document.getElementById(id).addEventListener('input', saveFormState);
         });
         document.getElementById('custName').addEventListener('blur', function() {
@@ -392,6 +397,10 @@
             document.getElementById('propOut').innerText = prop;
             document.getElementById('validationIdOut').innerText = stampId;
 
+            const extraReq = document.getElementById('extraReq').value.trim();
+            document.getElementById('extraReqOut').innerText = extraReq;
+            document.getElementById('extraReqP').style.display = extraReq ? 'block' : 'none';
+
             document.getElementById('headerPhone').innerText = officer.phone;
             document.getElementById('headerEmail').innerText = officer.email;
             
@@ -415,7 +424,37 @@
             document.getElementById('archiveView').style.display = 'none';
             document.getElementById('documentView').style.display = 'block';
             window.scrollTo(0,0);
+            fitLetterToPage();
+            if (document.fonts) document.fonts.ready.then(fitLetterToPage);
+            const sigImg = sigContainer.querySelector('img');
+            if (sigImg && !sigImg.complete) sigImg.addEventListener('load', fitLetterToPage);
         }
+
+        // Printable area of a letter page with the @page margins above (8.5x11in minus 0.75in sides, 0.6in top/bottom), in CSS px.
+        const PRINT_WIDTH = (8.5 - 1.5) * 96;
+        const PRINT_HEIGHT = (11 - 1.2) * 96 - 12; // small safety allowance
+
+        // Lay the letter out at print width and work out how much (if at all) it must be
+        // scaled down to fit on one page. Shrinking also makes the lines wider, so test widths too.
+        function fitLetterToPage() {
+            const src = document.getElementById('letterWrapper');
+            const probe = src.cloneNode(true);
+            probe.removeAttribute('id');
+            probe.style.cssText = 'position:absolute; left:-10000px; top:0; visibility:hidden; padding:0; box-shadow:none; border-radius:0;';
+            document.body.appendChild(probe);
+            const fits = z => { probe.style.width = (PRINT_WIDTH / z) + 'px'; return probe.offsetHeight * z <= PRINT_HEIGHT; };
+            let fit = 1;
+            if (!fits(1)) {
+                let lo = 0.6, hi = 1;
+                for (let i = 0; i < 12; i++) { const mid = (lo + hi) / 2; if (fits(mid)) lo = mid; else hi = mid; }
+                fit = lo;
+            }
+            probe.remove();
+            document.documentElement.style.setProperty('--print-fit', fit.toFixed(4));
+        }
+        window.addEventListener('beforeprint', () => {
+            if (document.getElementById('documentView').style.display === 'block') fitLetterToPage();
+        });
 
         function editLetter() {
             document.getElementById('documentView').style.display = 'none';
@@ -447,6 +486,7 @@
                 propAddr: document.getElementById('propAddr').value || "TBD, TN",
                 agentName: document.getElementById('agentName').value,
                 signatory: document.getElementById('signatory').value,
+                extraReq: document.getElementById('extraReq').value.trim(),
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 createdAtLocal: new Date().toLocaleString('en-US')
             };
@@ -464,6 +504,10 @@
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('filter-' + filter).classList.add('active');
             renderArchiveList();
+        }
+
+        function escapeHtml(v) {
+            return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         }
 
         function renderArchiveList() {
@@ -492,11 +536,11 @@
                 
                 html += `
                     <div class="archive-item">
-                        <strong>${a.name}</strong><br>
-                        <small>${dateStr} • ${a.program} • ${a.price || ''} ${officerName ? '• ' + officerName : ''}</small><br>
+                        <strong>${escapeHtml(a.name)}</strong><br>
+                        <small>${escapeHtml(dateStr)} • ${escapeHtml(a.program)} • ${escapeHtml(a.price || '')} ${officerName ? '• ' + escapeHtml(officerName) : ''}</small><br>
                         <div style="display:flex;gap:8px;margin-top:10px;">
-                            <button onclick="loadArchive('${item.id}')" style="flex:1;background:#005a9c;padding:10px;font-size:0.95rem;">Load</button>
-                            <button onclick="deleteArchive('${item.id}')" style="flex:1;background:#dc3545;padding:10px;font-size:0.95rem;">Delete</button>
+                            <button onclick="loadArchive('${escapeHtml(item.id)}')" style="flex:1;background:#005a9c;padding:10px;font-size:0.95rem;">Load</button>
+                            <button onclick="deleteArchive('${escapeHtml(item.id)}')" style="flex:1;background:#dc3545;padding:10px;font-size:0.95rem;">Delete</button>
                         </div>
                     </div>
                 `;
@@ -550,6 +594,7 @@
                 document.getElementById('downPct').value = a.downPct || '';
                 document.getElementById('propAddr').value = a.propAddr || 'TBD, TN';
                 document.getElementById('agentName').value = a.agentName || '';
+                document.getElementById('extraReq').value = a.extraReq || '';
                 
                 saveFormState();
                 updateLiveSummary();
@@ -571,7 +616,7 @@
         }
 
         function copyToClipboard() {
-            const text = `HMS Pre-Approval Summary\nBorrower: ${document.getElementById('nameOut').innerText}\nProgram: ${document.getElementById('progOut').innerText}\nPrice: ${document.getElementById('priceOut').innerText}\nLoan: ${document.getElementById('loanOut').innerText}\nDown: ${document.getElementById('downOut').innerText}\nValid Until: ${document.getElementById('expireOut').innerText}\n${document.getElementById('validationIdOut').innerText}`;
+            const text = `HMS Pre-Approval Summary\nBorrower: ${document.getElementById('nameOut').innerText}\nProgram: ${document.getElementById('progOut').innerText}\nPrice: ${document.getElementById('priceOut').innerText}\nLoan: ${document.getElementById('loanOut').innerText}\nDown: ${document.getElementById('downOut').innerText}\nValid Until: ${document.getElementById('expireOut').innerText}\n${document.getElementById('extraReqOut').innerText ? 'Additional Requirement: ' + document.getElementById('extraReqOut').innerText + '\n' : ''}${document.getElementById('validationIdOut').innerText}`;
             navigator.clipboard.writeText(text);
         }
 
