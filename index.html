@@ -8,6 +8,7 @@
     
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
     <style>
         html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
@@ -232,16 +233,29 @@
 
     <script>
         const firebaseConfig = { 
-            apiKey: "AIzaSyDnNHVSXJFkd2-Zynp1g9atJMO52CkhZ2w", 
-            authDomain: "golf-327be.firebaseapp.com", 
-            projectId: "golf-327be", 
-            storageBucket: "golf-327be.firebasestorage.app", 
-            messagingSenderId: "481710804257", 
-            appId: "1:481710804257:web:84ab3594fcc80b7affc260" 
+            apiKey: "AIzaSyAy5FETfAYQaoXA3M8lk5WnxFEW7Ef-BVA",
+            authDomain: "hms1-505c8.firebaseapp.com",
+            projectId: "hms1-505c8",
+            storageBucket: "hms1-505c8.appspot.com",
+            messagingSenderId: "331735052230",
+            appId: "1:331735052230:web:1b64411a8670a4e71b8cc7"
         };
         
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+
+        // The HMS1 database only lets signed-in visitors in, so the page signs itself in
+        // quietly in the background (Firebase anonymous sign-in): no email, password or prompt.
+        let signInPromise = null;
+        function ensureSignedIn() {
+            const auth = firebase.auth();
+            if (auth.currentUser) return Promise.resolve(auth.currentUser);
+            if (!signInPromise) {
+                signInPromise = auth.signInAnonymously().catch(err => { signInPromise = null; throw err; });
+            }
+            return signInPromise;
+        }
+        ensureSignedIn().catch(err => console.error('Background sign-in failed', err));
 
         const officers = {
             john: { name: "John Bischof", email: "john@hmsloan.com", phone: "(423) 505-9811", title: "Mortgage Broker / Owner", nmls: "NMLS #165831", sigType: "image" },
@@ -622,6 +636,7 @@
             };
 
             try {
+                await ensureSignedIn();
                 await db.collection('hms_preapprovals').add(entry);
             } catch (err) {
                 console.error(err);
@@ -686,6 +701,7 @@
             document.getElementById('archiveList').innerHTML = "";
 
             try {
+                await ensureSignedIn();
                 const snapshot = await db.collection('hms_preapprovals')
                     .orderBy('createdAt', 'desc')
                     .limit(100)
@@ -712,6 +728,7 @@
 
         async function loadArchive(docId) {
             try {
+                await ensureSignedIn();
                 const doc = await db.collection('hms_preapprovals').doc(docId).get();
                 if (!doc.exists) return;
                 const a = doc.data();
@@ -737,6 +754,7 @@
         async function deleteArchive(docId) {
             if (!confirm("Delete this saved pre-approval?")) return;
             try {
+                await ensureSignedIn();
                 await db.collection('hms_preapprovals').doc(docId).delete();
                 allArchiveDocs = allArchiveDocs.filter(d => d.id !== docId);
                 renderArchiveList();
